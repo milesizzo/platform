@@ -58,6 +58,15 @@
       "texture": "Tiles/stone010"
     },
     {
+      "origin": {
+        "x": 125,
+        "y": 125
+      },
+      "name": "lightmask",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "lightmask"
+    },
+    {
       "name": "player",
       "type": "GameEngine.Templates.NamedAnimatedSpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
       "texture": "Characters/player",

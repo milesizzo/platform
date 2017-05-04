@@ -1,8 +1,10 @@
-﻿using System;
+﻿#define WIN64
+
+using System;
 
 namespace Platform
 {
-#if WINDOWS || LINUX
+#if WINDOWS || LINUX || WIN64
     /// <summary>
     /// The main class.
     /// </summary>
