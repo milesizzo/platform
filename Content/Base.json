@@ -8,6 +8,66 @@
       "texture": "Tiles/block"
     },
     {
+      "name": "rock001",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (1)"
+    },
+    {
+      "name": "rock002",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (2)"
+    },
+    {
+      "name": "rock003",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (3)"
+    },
+    {
+      "name": "rock004",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (4)"
+    },
+    {
+      "name": "rock005",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (5)"
+    },
+    {
+      "name": "rock006",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (6)"
+    },
+    {
+      "name": "rock007",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (7)"
+    },
+    {
+      "name": "rock008",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (8)"
+    },
+    {
+      "name": "rock009",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (9)"
+    },
+    {
+      "name": "rock010",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (10)"
+    },
+    {
+      "name": "rock011",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (11)"
+    },
+    {
+      "name": "rock012",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Rock/rock (12)"
+    },
+    {
       "name": "stone001",
       "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
       "texture": "Tiles/stone001"
@@ -119,6 +179,24 @@
       ]
     },
     {
+      "name": "torch1",
+      "type": "GameEngine.Templates.AnimatedSpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Objects/torch1",
+      "width": 32,
+      "height": 64,
+      "border": 0,
+      "fps": 12,
+      "frames": 9
+    },
+    {
+      "name": "tiles.ground",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/ground_tiles",
+      "width": 16,
+      "height": 16,
+      "border": 1
+    },
+    {
       "name": "tree1",
       "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
       "origin": {
@@ -161,6 +239,14 @@
         "_y": 122.0
       },
       "texture": "Objects/tree4"
+    },
+    {
+      "name": "kenney.ground",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/spritesheet_ground",
+      "width": 128,
+      "height": 128,
+      "border": 0
     }
   ],
   "audio": [],
@@ -168,6 +254,10 @@
     {
       "name": "debug",
       "asset": "Fonts/DebugFont"
+    },
+    {
+      "name": "debug.small",
+      "asset": "Fonts/SmallDebugFont"
     }
   ]
 }

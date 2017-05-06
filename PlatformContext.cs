@@ -18,6 +18,7 @@ namespace Platform
     {
         public readonly HashSet<int> Background = new HashSet<int>();
         public readonly HashSet<int> Foreground = new HashSet<int>();
+        public readonly HashSet<int> Blocking = new HashSet<int>();
     }
 
     public class MapRow
@@ -69,13 +70,20 @@ namespace Platform
         public bool IsPassable(int x, int y)
         {
             //return !this.BlockingTiles.Overlaps(this[y, x].Foreground);
-            return !this[y, x].Foreground.Any();
+            return !this[y, x].Blocking.Any();
         }
     }
 
+    public delegate bool LightOperatingDelegate(TimeSpan time);
+    public delegate void LightAnimationDelegate(Light light, GameTime gameTime);
+
     public class Light
     {
-        public static Func<TimeSpan, bool> OperatingNightOnly = time => time.Hours < 8 || time.Hours > 17;
+        public static LightOperatingDelegate OperatingNightOnly = time => time.Hours < 8 || time.Hours > 17;
+
+        public static LightAnimationDelegate Candle = (light, gameTime) =>
+        {
+        };
 
         private IGameObject owner;
         private Vector2 position = Vector2.Zero;
@@ -83,7 +91,8 @@ namespace Platform
         private Vector2 scale = Vector2.One;
         private bool enabled = true;
         private bool operating = false;
-        private Func<TimeSpan, bool> operatingFunc = OperatingNightOnly;
+        private LightOperatingDelegate operatingFunc = OperatingNightOnly;
+        private LightAnimationDelegate animation = null;
 
         public Light()
         {
@@ -130,14 +139,20 @@ namespace Platform
             get { return this.operating; }
         }
 
-        public Func<TimeSpan, bool> OperatingFunction
+        public LightOperatingDelegate OperatingFunction
         {
             set { this.operatingFunc = value; }
+        }
+
+        public LightAnimationDelegate Animation
+        {
+            set { this.animation = value; }
         }
         
         internal void Update(ref TimeSpan time, GameTime gameTime)
         {
             this.operating = this.operatingFunc == null ? true : this.operatingFunc(time);
+            this.animation?.Invoke(this, gameTime);
         }
     }
 
@@ -205,11 +220,18 @@ namespace Platform
         };
         private Color ambientBackground;
         private Color ambientLight;
+        private bool enabled = true;
 
-        public PlatformContext(Store store, Camera camera) : base(store)
+        public PlatformContext(Store store, Camera camera, int width, int height, int tilesize) : base(store)
         {
-            this.Map = new TileMap(2048, 1024, 32);
+            this.Map = new TileMap(width, height, tilesize);
             this.camera = camera;
+        }
+
+        public bool Enabled
+        {
+            get { return this.enabled; }
+            set { this.enabled = value; }
         }
 
         public Point WorldToTile(Vector2 world)
@@ -225,6 +247,11 @@ namespace Platform
         public Vector2 TileToWorld(int x, int y)
         {
             return new Vector2(x * this.Map.TileSize, y * this.Map.TileSize);
+        }
+
+        public bool IsInBounds(Point tile)
+        {
+            return tile.X >= 0 && tile.X < this.Map.Width && tile.Y >= 0 && tile.Y < this.Map.Height;
         }
 
         public static float ZToDepth(float z)
@@ -274,12 +301,14 @@ namespace Platform
 
         public override void Update(GameTime gameTime)
         {
-            base.Update(gameTime);
-            this.time += TimeSpan.FromSeconds(gameTime.GetElapsedSeconds());
-
-            foreach (var light in this.lights.Where(l => l.IsEnabled))
+            if (this.Enabled)
             {
-                light.Update(ref this.time, gameTime);
+                base.Update(gameTime);
+                this.time += TimeSpan.FromSeconds(gameTime.GetElapsedSeconds());
+                foreach (var light in this.lights.Where(l => l.IsEnabled))
+                {
+                    light.Update(ref this.time, gameTime);
+                }
             }
 
             var hour = this.time.Hours;
@@ -287,6 +316,21 @@ namespace Platform
             var nextHour = hour == 23 ? 0 : hour + 1;
             this.ambientLight = this.Lerp(this.ambientLightAtHour[hour], this.ambientLightAtHour[nextHour], scale);
             this.ambientBackground = this.Lerp(this.ambientBackgroundAtHour[hour], this.ambientBackgroundAtHour[nextHour], scale);
+        }
+
+        private void DrawTile(Renderer renderer, Vector2 pos, int tileId, float depth)
+        {
+            if (tileId < 0 || tileId >= this.Map.Sprites.Count)
+            {
+                renderer.World.DrawRectangle(pos, new Size2(this.Map.TileSize - 1, this.Map.TileSize - 1), Color.Red);
+                var font = this.Store.Fonts("Base", "debug.small");
+                var s = $"{tileId}";
+                font.DrawString(renderer.World, pos + new Vector2(this.Map.TileSize / 2) - font.Font.MeasureString(s) / 2, s, Color.Yellow);
+            }
+            else
+            {
+                this.Map.Sprites[tileId].DrawSprite(renderer.World, 0, pos, Color.White, 0, Vector2.One, SpriteEffects.None, depth);
+            }
         }
 
         public override void Draw(Renderer renderer, GameTime gameTime)
@@ -313,13 +357,16 @@ namespace Platform
                     var pos = new Vector2(x * this.Map.TileSize, y * this.Map.TileSize);
                     foreach (var tileId in cell.Background)
                     {
-                        this.Map.Sprites[tileId].DrawSprite(renderer.World, pos, 0.9f);
+                        this.DrawTile(renderer, pos, tileId, 0.9f);
+                    }
+                    foreach (var tileId in cell.Blocking)
+                    {
+                        this.DrawTile(renderer, pos, tileId, 0.02f);
                     }
                     foreach (var tileId in cell.Foreground)
                     {
-                        this.Map.Sprites[tileId].DrawSprite(renderer.World, pos, 0.1f);
+                        this.DrawTile(renderer, pos, tileId, 0.01f);
                     }
-                    //renderer.World.DrawRectangle(new RectangleF(pos, new Size2(this.Map.TileSize, this.Map.TileSize)), Color.White);
                 }
             }
         }

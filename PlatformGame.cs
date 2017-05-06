@@ -17,6 +17,7 @@ namespace Platform
         {
             // TODO: Add your initialization logic here
             base.Initialize();
+            this.IsMouseVisible = true;
         }
 
         protected override void LoadContent()
@@ -25,6 +26,10 @@ namespace Platform
             this.Scenes.GetOrAdd<IScene>("Main", (key) =>
             {
                 return new PlatformGameScene(key, this.GraphicsDevice, this.Store);
+            });
+            this.Scenes.GetOrAdd<IScene>("Editor", (key) =>
+            {
+                return new PlatformEditorScene(key, this.GraphicsDevice, this.Store);
             });
             this.SetCurrentScene("Main");
         }

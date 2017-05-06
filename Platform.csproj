@@ -50,6 +50,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="PlatformContext.cs" />
+    <Compile Include="PlatformEditorScene.cs" />
     <Compile Include="PlatformGame.cs" />
     <Compile Include="PlatformGameScene.cs" />
     <Compile Include="PlatformObject.cs" />
