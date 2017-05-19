@@ -11,6 +11,8 @@ using GameEngine.Templates;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using GameEngine.Helpers;
+using CommonLibrary;
+using System.IO;
 
 namespace Platform
 {
@@ -103,36 +105,6 @@ namespace Platform
             return new PlatformContext(this.Store, this.Camera, 2048, 1024, 16);
         }
 
-        private void MakePlatform(Rectangle rect)
-        {
-            var map = this.Context.Map;
-            /*
-            map[rect.Top, rect.Left].Foreground.Add(0);
-            map[rect.Top, rect.Right].Foreground.Add(2);
-            for (var i = rect.Left + 1; i < rect.Right; i++)
-            {
-                map[rect.Top, i].Foreground.Add(1);
-                map[rect.Bottom, i].Blocking.Add(10);
-                for (var j = rect.Top + 1; j < rect.Bottom; j++)
-                {
-                    map[j, i].Blocking.Add(7);
-                }
-            }
-            map[rect.Bottom, rect.Left].Blocking.Add(9);
-            map[rect.Bottom, rect.Right].Blocking.Add(11);
-            for (var j = rect.Top + 1; j < rect.Bottom; j++)
-            {
-                map[j, rect.Left].Blocking.Add(6);
-                map[j, rect.Right].Blocking.Add(8);
-            }
-            */
-            for (var j = rect.Top; j < rect.Bottom; j++)
-                for (var i = rect.Left; i < rect.Right; i++)
-                {
-                    map[j, i].Block = new Material { Type = MaterialType.Dirt };
-                }
-        }
-
         private IGameObject MakeTree(Point basePos, float z, string asset)
         {
             var random = new Random();
@@ -144,65 +116,8 @@ namespace Platform
             return tree;
         }
 
-        public override void SetUp()
+        private void GenerateTerrain()
         {
-            base.SetUp();
-
-            /*this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "default"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone001"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone002"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone003"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone004"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone005"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone006"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone007"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone008"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone009"));
-            this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone010"));*/
-            //this.Context.Map.Sprites.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.ground").Sprites);
-            //for (var i = 1; i <= 12; i++)
-            //this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", $"rock0{i:00}"));
-            this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
-            this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
-            this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
-            this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
-
-            /*foreach (var cell in this.Context.Map.Rows.Last().Columns)
-            {
-                cell.Block = new Material
-                {
-                    Type = MaterialType.Dirt
-                };
-            }*/
-
-            /*
-            var random = new Random();
-            var x = 0;
-            int y = 500;
-            while (x < this.Context.Map.Width)
-            {
-                var width = random.Next(7, 20);
-                var height = random.Next(3, width);
-                var platform = new Rectangle(x, y, width, height);
-                if (platform.Right >= this.Context.Map.Width)
-                {
-                    break;
-                }
-                this.MakePlatform(platform);
-                for (var i = 0; i < random.Next(3) + 1; i++)
-                {
-                    var asset = random.Choice("tree1", "tree2", "tree3", "tree4");
-                    this.MakeTree(new Point(random.Next(platform.Left, MathHelper.Clamp(platform.Right - 4, platform.Left + 2, platform.Right)), platform.Top), (float)random.NextDouble(), asset);
-                }
-                x += platform.Width + random.Next(3) + 3;
-                y += random.Next(3) - 1;
-                if (y < 0 || y >= this.Context.Map.Height)
-                    break;
-            }
-            */
-
-            this.Context.Map = BinTileMapSerializer.Load("landscape.map");
-            /*
             var random = new Random();
             var terrain = new TerrainGenerator(this.Context.Map);
             foreach (var point in terrain.Generate())
@@ -210,37 +125,28 @@ namespace Platform
                 // tree pls
                 this.MakeTree(point, (float)random.NextDouble(), random.Choice("tree1", "tree2", "tree3", "tree4"));
             }
-            */
+        }
+
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
+            this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
+            this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
+            this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
+
+            if (File.Exists("landscape.map"))
+            {
+                this.Context.Map = BinTileMapSerializer.Load("landscape.map");
+            }
+            else
+            {
+                this.GenerateTerrain();
+                BinTileMapSerializer.Save("landscape.map", this.Context.Map);
+            }
             this.Context.Map.SaveToImage(this.Graphics, "map.png");
 
-            /*
-            var x = 0;
-            foreach (var cell in this.Context.Map.Rows[8].Columns)
-            {
-                if ((x + 1) % 5 != 0)
-                {
-                    cell.Blocking.Add(random.Next(0, 2));
-                }
-                x++;
-            }
-            x = 0;
-            foreach (var cell in this.Context.Map.Rows[11].Columns)
-            {
-                if ((x + 1) % 10 != 0)
-                {
-                    cell.Blocking.Add(random.Next(0, 2));
-                }
-                x++;
-            }
-            */
-
-            /*var random = new Random();
-            for (var i = 0; i < 100000; i++)
-            {
-                var col = random.Next(this.Context.Map.Width);
-                var row = random.Next(this.Context.Map.Height);
-                this.Context.Map[row, col].TileId = 1;
-            }*/
             var startY = 200f * this.Context.Map.TileSize;
 
             this.player = new VisiblePlatformObject(this.Context);
@@ -253,42 +159,6 @@ namespace Platform
                 RelativePosition = new Vector2(this.player.Bounds.Width / 2, this.player.Bounds.Height / 2),
                 Colour = Color.Yellow
             });
-
-            /*var tree = new VisiblePlatformObject(this.Context);
-            tree.Sprite = this.Store.Sprites<SingleSpriteTemplate>("Base", "tree1");
-            tree.Position3D = new Vector3(120, startY, 0f);
-            this.Context.AddObject(tree);
-            this.Context.AttachLightSource(tree, new Light
-            {
-                RelativePosition = new Vector2(tree.Bounds.Width / 2, tree.Bounds.Height / 2)
-            });
-
-            tree = new VisiblePlatformObject(this.Context);
-            tree.Sprite = this.Store.Sprites<SingleSpriteTemplate>("Base", "tree2");
-            tree.Position3D = new Vector3(200, startY, 0.6f);
-            this.Context.AddObject(tree);
-
-            tree = new VisiblePlatformObject(this.Context);
-            tree.Sprite = this.Store.Sprites<SingleSpriteTemplate>("Base", "tree3");
-            tree.Position3D = new Vector3(300, startY, 0f);
-            this.Context.AddObject(tree);
-
-            tree = new VisiblePlatformObject(this.Context);
-            tree.Sprite = this.Store.Sprites<SingleSpriteTemplate>("Base", "tree4");
-            tree.Position3D = new Vector3(500, startY, 0f);
-            this.Context.AddObject(tree);
-
-            var torch = new VisiblePlatformObject(this.Context);
-            torch.Sprite = this.Store.Sprites<ISpriteTemplate>("Base", "torch1");
-            torch.Position3D = new Vector3(400, startY, 0.6f);
-            torch.IsPhysicsEnabled = false;
-            this.Context.AddObject(torch);
-            this.Context.AttachLightSource(torch, new Light
-            {
-                RelativePosition = new Vector2(15, 19),
-                Colour = Color.Yellow,
-                Animation = Light.Candle,
-            });*/
         }
 
         public override void Update(GameTime gameTime)
