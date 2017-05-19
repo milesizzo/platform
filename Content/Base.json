@@ -118,6 +118,19 @@
       "texture": "Tiles/stone010"
     },
     {
+      "name": "tiles.dirt",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Dirt/dirt",
+      "width": 16,
+      "height": 16,
+      "border": 0
+    },
+    {
+      "name": "tiles.water",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/Water/water"
+    },
+    {
       "origin": {
         "x": 125,
         "y": 125

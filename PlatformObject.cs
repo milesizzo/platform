@@ -51,7 +51,10 @@ namespace Platform
 
     public class VisiblePlatformObject : PlatformObject
     {
+        public const float Gravity = 50f;
+        public const float TerminalVelocity = 450f;
         public bool IsPhysicsEnabled = true;
+        public bool IsGravityEnabled = true;
         private ISpriteTemplate sprite;
         private float frame;
         private Vector2 velocity;
@@ -86,12 +89,14 @@ namespace Platform
             if (this.IsPhysicsEnabled)
             {
                 var elapsed = gameTime.GetElapsedSeconds();
-                if (!this.OnGround)
+                if (!this.OnGround && this.IsGravityEnabled)
                 {
                     // we only apply gravity if we weren't on the ground in the previous cycle
-                    this.velocity.Y = MathHelper.Min(this.velocity.Y + 50f, 450f);
+                    this.velocity.Y = MathHelper.Min(this.velocity.Y + Gravity, TerminalVelocity);
                 }
                 var dv = this.velocity * elapsed;
+
+                // TODO: check when the magnitude of dv is > tilesize (we will need to check multiple tiles)
 
                 // update the x axis, handle collision
                 if (dv.X > 0)
@@ -99,7 +104,7 @@ namespace Platform
                     // test tile to the right
                     var xTileTopRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1 + dv.X, this.bounds.Top));
                     var xTileBottomRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1 + dv.X, this.bounds.Bottom - 1));
-                    if (!this.Context.Map.IsPassable(xTileTopRight) || !this.Context.Map.IsPassable(xTileBottomRight))
+                    if (!this.Context.Map.IsPassable(xTileTopRight, xTileBottomRight))
                     {
                         this.velocity.X = 0;
                         this.bounds.X = this.Context.TileToWorld(xTileTopRight).X - this.bounds.Width;
@@ -113,7 +118,7 @@ namespace Platform
                 {
                     var xTileTopLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left + dv.X, this.bounds.Top));
                     var xTileBottomLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left + dv.X, this.bounds.Bottom - 1));
-                    if (!this.Context.Map.IsPassable(xTileTopLeft) || !this.Context.Map.IsPassable(xTileBottomLeft))
+                    if (!this.Context.Map.IsPassable(xTileTopLeft, xTileBottomLeft))
                     {
                         this.velocity.X = 0;
                         this.bounds.X = this.Context.TileToWorld(xTileTopLeft.X + 1, xTileTopLeft.Y).X;
@@ -130,7 +135,7 @@ namespace Platform
                     // test tile beneath us
                     var yTileBottomLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Bottom - 1 + dv.Y));
                     var yTileBottomRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1, this.bounds.Bottom - 1 + dv.Y));
-                    if (!this.Context.Map.IsPassable(yTileBottomLeft) || !this.Context.Map.IsPassable(yTileBottomRight))
+                    if (!this.Context.Map.IsPassable(yTileBottomLeft, yTileBottomRight))
                     {
                         this.velocity.Y = 0;
                         this.bounds.Y = this.Context.TileToWorld(yTileBottomLeft).Y - this.bounds.Height;
@@ -145,7 +150,7 @@ namespace Platform
                     // test tile above us
                     var yTileTopLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Top + dv.Y));
                     var yTileTopRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1, this.bounds.Top + dv.Y));
-                    if (!this.Context.Map.IsPassable(yTileTopLeft) || !this.Context.Map.IsPassable(yTileTopRight))
+                    if (!this.Context.Map.IsPassable(yTileTopLeft, yTileTopRight))
                     {
                         this.velocity.Y = 0;// -this.velocity.Y;
                         this.bounds.Y = this.Context.TileToWorld(yTileTopLeft.X, yTileTopLeft.Y + 1).Y;
@@ -159,7 +164,7 @@ namespace Platform
 
             var tileBottomLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Bottom));
             var tileBottomRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1, this.bounds.Bottom));
-            if (!this.Context.Map.IsPassable(tileBottomLeft) || !this.Context.Map.IsPassable(tileBottomRight))
+            if (!this.Context.Map.IsPassable(tileBottomLeft, tileBottomRight))
             {
                 this.onGround = true;
             }
@@ -186,7 +191,18 @@ namespace Platform
 
             if (this.IsVisible())
             {
-                this.Sprite.DrawSprite(renderer.World, intFrame, this.Position, PlatformContext.ZToDepth(this.Z));
+                var depth = PlatformContext.ZToDepth(this.Z);
+                var colour = Color.White;
+                var scale = Vector2.One;
+                var offset = Vector2.Zero;
+                if (this.Z > 0.5f)
+                {
+                    var alpha = (byte)((1f - (this.Z - 0.5f) * 2) * 255);
+                    colour = new Color(alpha, alpha, alpha, alpha);
+                    //scale = new Vector2(1f - (this.Z - 0.5f) * 2);
+                    //offset = new Vector2((1f - scale.X) * this.sprite.Width / 2, (1f - scale.Y) * this.sprite.Height);
+                }
+                this.Sprite.DrawSprite(renderer.World, intFrame, this.Position + offset, colour, 0, scale, SpriteEffects.None, depth);
 
                 if (AbstractObject.DebugInfo)
                 {

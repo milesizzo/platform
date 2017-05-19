@@ -49,6 +49,24 @@
     <OutputPath>bin\x64\Release\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="AccidentalNoise\AutoCorrect.cs" />
+    <Compile Include="AccidentalNoise\BasisFunction.cs" />
+    <Compile Include="AccidentalNoise\Bias.cs" />
+    <Compile Include="AccidentalNoise\Cache.cs" />
+    <Compile Include="AccidentalNoise\Combiner.cs" />
+    <Compile Include="AccidentalNoise\Fractal.cs" />
+    <Compile Include="AccidentalNoise\Gradient.cs" />
+    <Compile Include="AccidentalNoise\IModuleBase.cs" />
+    <Compile Include="AccidentalNoise\NoiseGen.cs" />
+    <Compile Include="AccidentalNoise\Random_Gen.cs" />
+    <Compile Include="AccidentalNoise\RGBACompositeChannels.cs" />
+    <Compile Include="AccidentalNoise\ScaleDomain.cs" />
+    <Compile Include="AccidentalNoise\ScaleOffset.cs" />
+    <Compile Include="AccidentalNoise\Select.cs" />
+    <Compile Include="AccidentalNoise\Sphere.cs" />
+    <Compile Include="AccidentalNoise\TranslatedDomain.cs" />
+    <Compile Include="AccidentalNoise\Util\SMappingRanges.cs" />
+    <Compile Include="Light.cs" />
     <Compile Include="PlatformContext.cs" />
     <Compile Include="PlatformEditorScene.cs" />
     <Compile Include="PlatformGame.cs" />
@@ -56,8 +74,15 @@
     <Compile Include="PlatformObject.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Serializing\Serialize.TileMap.cs" />
+    <Compile Include="TerrainGenerator.cs" />
+    <Compile Include="TileMap.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="MonoGame.Extended, Version=0.6.377.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>bin\Windows\x86\Debug\MonoGame.Extended.dll</HintPath>
@@ -79,6 +104,10 @@
     <Content Include="Content\Base.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Content\Maps\landscape.map">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine2d\CommonLibrary\CommonLibrary.csproj">

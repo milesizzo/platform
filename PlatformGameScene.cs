@@ -1,10 +1,8 @@
 ﻿using GameEngine.GameObjects;
 using GameEngine.Scenes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using GameEngine.Content;
 using GameEngine.Graphics;
 using Microsoft.Xna.Framework;
@@ -13,7 +11,6 @@ using GameEngine.Templates;
 using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using GameEngine.Helpers;
-using CommonLibrary;
 
 namespace Platform
 {
@@ -95,6 +92,7 @@ namespace Platform
     {
         private VisiblePlatformObject player;
         private string playerAnimation;
+        private bool godMode = false;
 
         public PlatformGameScene(string name, GraphicsDevice graphics, Store store) : base(name, graphics, store)
         {
@@ -108,6 +106,7 @@ namespace Platform
         private void MakePlatform(Rectangle rect)
         {
             var map = this.Context.Map;
+            /*
             map[rect.Top, rect.Left].Foreground.Add(0);
             map[rect.Top, rect.Right].Foreground.Add(2);
             for (var i = rect.Left + 1; i < rect.Right; i++)
@@ -126,6 +125,12 @@ namespace Platform
                 map[j, rect.Left].Blocking.Add(6);
                 map[j, rect.Right].Blocking.Add(8);
             }
+            */
+            for (var j = rect.Top; j < rect.Bottom; j++)
+                for (var i = rect.Left; i < rect.Right; i++)
+                {
+                    map[j, i].Block = new Material { Type = MaterialType.Dirt };
+                }
         }
 
         private IGameObject MakeTree(Point basePos, float z, string asset)
@@ -155,19 +160,22 @@ namespace Platform
             this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone009"));
             this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", "stone010"));*/
             //this.Context.Map.Sprites.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.ground").Sprites);
-            for (var i = 1; i <= 12; i++)
-                this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", $"rock0{i:00}"));
+            //for (var i = 1; i <= 12; i++)
+            //this.Context.Map.Sprites.Add(this.Store.Sprites<SingleSpriteTemplate>("Base", $"rock0{i:00}"));
+            this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
+            this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
+            this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
+            this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
 
-            for (var i = 0; i < this.Context.Map.Sprites.Count; i++)
+            /*foreach (var cell in this.Context.Map.Rows.Last().Columns)
             {
-                this.Context.Map.BlockingTiles.Add(i);
-            }
+                cell.Block = new Material
+                {
+                    Type = MaterialType.Dirt
+                };
+            }*/
 
-            foreach (var cell in this.Context.Map.Rows.Last().Columns)
-            {
-                cell.Blocking.Add(1);
-            }
-
+            /*
             var random = new Random();
             var x = 0;
             int y = 500;
@@ -186,11 +194,25 @@ namespace Platform
                     var asset = random.Choice("tree1", "tree2", "tree3", "tree4");
                     this.MakeTree(new Point(random.Next(platform.Left, MathHelper.Clamp(platform.Right - 4, platform.Left + 2, platform.Right)), platform.Top), (float)random.NextDouble(), asset);
                 }
-                x += platform.Width + random.Next(3) + 4;
+                x += platform.Width + random.Next(3) + 3;
                 y += random.Next(3) - 1;
                 if (y < 0 || y >= this.Context.Map.Height)
                     break;
             }
+            */
+
+            this.Context.Map = BinTileMapSerializer.Load("landscape.map");
+            /*
+            var random = new Random();
+            var terrain = new TerrainGenerator(this.Context.Map);
+            foreach (var point in terrain.Generate())
+            {
+                // tree pls
+                this.MakeTree(point, (float)random.NextDouble(), random.Choice("tree1", "tree2", "tree3", "tree4"));
+            }
+            */
+            this.Context.Map.SaveToImage(this.Graphics, "map.png");
+
             /*
             var x = 0;
             foreach (var cell in this.Context.Map.Rows[8].Columns)
@@ -219,11 +241,12 @@ namespace Platform
                 var row = random.Next(this.Context.Map.Height);
                 this.Context.Map[row, col].TileId = 1;
             }*/
-            var startY = 490f * this.Context.Map.TileSize;
+            var startY = 200f * this.Context.Map.TileSize;
 
             this.player = new VisiblePlatformObject(this.Context);
             this.player.Position3D = new Vector3(10, startY, 0.5f);
             this.player.Sprite = this.Store.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player").GetAnimation("IdleRight");
+            this.player.IsGravityEnabled = !this.godMode;
             this.Context.AddObject(this.player);
             this.Context.AttachLightSource(this.player, new Light
             {
@@ -299,6 +322,11 @@ namespace Platform
             {
                 this.Context.LightsEnabled = !this.Context.LightsEnabled;
             }
+            if (KeyboardHelper.KeyPressed(Keys.F10))
+            {
+                this.godMode = !this.godMode;
+                this.player.IsGravityEnabled = !this.godMode;
+            }
             if (KeyboardHelper.KeyPressed(Keys.OemPlus))
             {
                 this.Context.Time += TimeSpan.FromHours(1);
@@ -310,7 +338,32 @@ namespace Platform
 
             var animation = string.Empty;
 
-            if (keyboard.IsKeyDown(Keys.W) && this.player.OnGround)
+            if (this.godMode)
+            {
+                if (keyboard.IsKeyDown(Keys.S))
+                {
+                    if (this.player.Velocity.Y < 150f)
+                    {
+                        this.player.Velocity += new Vector2(0, 150f);
+                    }
+                }
+                else if (keyboard.IsKeyDown(Keys.W))
+                {
+                    if (this.player.Velocity.Y > -150f)
+                    {
+                        this.player.Velocity += new Vector2(0, -150f);
+                    }
+                }
+                else if (this.player.Velocity.Y > 0)
+                {
+                    this.player.Velocity = new Vector2(this.player.Velocity.X, MathHelper.Max(this.player.Velocity.Y - 20f, 0));
+                }
+                else if (this.player.Velocity.Y < 0)
+                {
+                    this.player.Velocity = new Vector2(this.player.Velocity.X, MathHelper.Min(this.player.Velocity.Y + 20f, 0));
+                }
+            }
+            else if (keyboard.IsKeyDown(Keys.W) && this.player.OnGround)
             {
                 this.player.Velocity += new Vector2(0, -750f);
             }
@@ -352,6 +405,11 @@ namespace Platform
                         animation = "IdleLeft";
                         break;
                 }
+            }
+
+            if (KeyboardHelper.KeyPressed(Keys.F2))
+            {
+                BinTileMapSerializer.Save("landscape.map", this.Context.Map);
             }
 
             if (!string.IsNullOrEmpty(animation) && animation != this.playerAnimation)

@@ -8,157 +8,17 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Platform
 {
-    public class MapCell
-    {
-        public readonly HashSet<int> Background = new HashSet<int>();
-        public readonly HashSet<int> Foreground = new HashSet<int>();
-        public readonly HashSet<int> Blocking = new HashSet<int>();
-    }
-
-    public class MapRow
-    {
-        public readonly List<MapCell> Columns = new List<MapCell>();
-    }
-
-    public class TileMap
-    {
-        public readonly HashSet<int> BlockingTiles = new HashSet<int>();
-        public readonly List<MapRow> Rows = new List<MapRow>();
-        public readonly List<SpriteTemplate> Sprites = new List<SpriteTemplate>();
-        public readonly int TileSize;
-        public readonly int Width;
-        public readonly int Height;
-        public Color BackgroundColour = Color.CornflowerBlue;
-
-        public TileMap(int width, int height, int tileSize)
-        {
-            this.Width = width;
-            this.Height = height;
-            for (var y = 0; y < height; y++)
-            {
-                var row = new MapRow();
-                for (var x = 0; x < width; x++)
-                {
-                    row.Columns.Add(new MapCell());
-                }
-                this.Rows.Add(row);
-            }
-            this.TileSize = tileSize;
-        }
-
-        public MapCell this[int y, int x]
-        {
-            get { return this.Rows[y].Columns[x]; }
-        }
-
-        public MapCell this[Point p]
-        {
-            get { return this[p.Y, p.X]; }
-        }
-
-        public bool IsPassable(Point p)
-        {
-            return this.IsPassable(p.X, p.Y);
-        }
-
-        public bool IsPassable(int x, int y)
-        {
-            //return !this.BlockingTiles.Overlaps(this[y, x].Foreground);
-            return !this[y, x].Blocking.Any();
-        }
-    }
-
-    public delegate bool LightOperatingDelegate(TimeSpan time);
-    public delegate void LightAnimationDelegate(Light light, GameTime gameTime);
-
-    public class Light
-    {
-        public static LightOperatingDelegate OperatingNightOnly = time => time.Hours < 8 || time.Hours > 17;
-
-        public static LightAnimationDelegate Candle = (light, gameTime) =>
-        {
-        };
-
-        private IGameObject owner;
-        private Vector2 position = Vector2.Zero;
-        private Color colour = Color.White;
-        private Vector2 scale = Vector2.One;
-        private bool enabled = true;
-        private bool operating = false;
-        private LightOperatingDelegate operatingFunc = OperatingNightOnly;
-        private LightAnimationDelegate animation = null;
-
-        public Light()
-        {
-            this.owner = null;
-        }
-        
-        public IGameObject Owner
-        {
-            get { return this.owner; }
-            internal set { this.owner = value; }
-        }
-
-        public Vector2 AbsolutePosition
-        {
-            get { return this.owner == null ? this.position : this.owner.Position + this.position; }
-        }
-
-        public Vector2 RelativePosition
-        {
-            get { return this.position; }
-            set { this.position = value; }
-        }
-
-        public Vector2 Size
-        {
-            get { return this.scale; }
-            set { this.scale = value; }
-        }
-
-        public Color Colour
-        {
-            get { return this.colour; }
-            set { this.colour = value; }
-        }
-
-        public bool IsEnabled
-        {
-            get { return this.enabled; }
-            set { this.enabled = value; }
-        }
-
-        public bool IsOperating
-        {
-            get { return this.operating; }
-        }
-
-        public LightOperatingDelegate OperatingFunction
-        {
-            set { this.operatingFunc = value; }
-        }
-
-        public LightAnimationDelegate Animation
-        {
-            set { this.animation = value; }
-        }
-        
-        internal void Update(ref TimeSpan time, GameTime gameTime)
-        {
-            this.operating = this.operatingFunc == null ? true : this.operatingFunc(time);
-            this.animation?.Invoke(this, gameTime);
-        }
-    }
-
     public class PlatformContext : GameContext
     {
-        public readonly TileMap Map;
+        public TileMap Map;
+        public readonly BlockStore BlockStore = new BlockStore();
         public RectangleF VisibleBounds;
         private readonly Camera camera;
         private readonly List<Light> lights = new List<Light>();
@@ -221,6 +81,11 @@ namespace Platform
         private Color ambientBackground;
         private Color ambientLight;
         private bool enabled = true;
+
+        public PlatformContext(Store store, Camera camera) : base(store)
+        {
+            this.camera = camera;
+        }
 
         public PlatformContext(Store store, Camera camera, int width, int height, int tilesize) : base(store)
         {
@@ -318,18 +183,21 @@ namespace Platform
             this.ambientBackground = this.Lerp(this.ambientBackgroundAtHour[hour], this.ambientBackgroundAtHour[nextHour], scale);
         }
 
-        private void DrawTile(Renderer renderer, Vector2 pos, int tileId, float depth)
+        private void DrawTile(Renderer renderer, Vector2 pos, ITile tile, float depth, Color colour)
         {
-            if (tileId < 0 || tileId >= this.Map.Sprites.Count)
+            if (tile == null) return;
+
+            var sprite = tile.GetSprite(this.BlockStore);
+            if (sprite == null)
             {
                 renderer.World.DrawRectangle(pos, new Size2(this.Map.TileSize - 1, this.Map.TileSize - 1), Color.Red);
                 var font = this.Store.Fonts("Base", "debug.small");
-                var s = $"{tileId}";
+                var s = $"{tile.DebugString}";
                 font.DrawString(renderer.World, pos + new Vector2(this.Map.TileSize / 2) - font.Font.MeasureString(s) / 2, s, Color.Yellow);
             }
             else
             {
-                this.Map.Sprites[tileId].DrawSprite(renderer.World, 0, pos, Color.White, 0, Vector2.One, SpriteEffects.None, depth);
+                sprite.DrawSprite(renderer.World, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
             }
         }
 
@@ -349,25 +217,26 @@ namespace Platform
             var minX = MathHelper.Max((int)topLeftTile.X - 1, 0);
             var maxX = MathHelper.Min((int)bottomRightTile.X + 1, this.Map.Width);
 
+            var pos = new Vector2(0, minY * this.Map.TileSize);
+            var startX = minX * this.Map.TileSize;
             for (var y = minY; y <= maxY; y++)
             {
+                pos.X = startX;
                 for (var x = minX; x <= maxX; x++)
                 {
                     var cell = this.Map[y, x];
-                    var pos = new Vector2(x * this.Map.TileSize, y * this.Map.TileSize);
-                    foreach (var tileId in cell.Background)
+                    foreach (var tile in cell.Background)
                     {
-                        this.DrawTile(renderer, pos, tileId, 0.9f);
+                        this.DrawTile(renderer, pos, tile, 0.9f, Color.White);
                     }
-                    foreach (var tileId in cell.Blocking)
+                    this.DrawTile(renderer, pos, cell.Block, 0.02f, Color.White);
+                    foreach (var tile in cell.Foreground)
                     {
-                        this.DrawTile(renderer, pos, tileId, 0.02f);
+                        this.DrawTile(renderer, pos, tile, 0.01f, Color.White);
                     }
-                    foreach (var tileId in cell.Foreground)
-                    {
-                        this.DrawTile(renderer, pos, tileId, 0.01f);
-                    }
+                    pos.X += this.Map.TileSize;
                 }
+                pos.Y += this.Map.TileSize;
             }
         }
     }
