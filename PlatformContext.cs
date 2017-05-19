@@ -213,9 +213,9 @@ namespace Platform
             var bottomRightTile = bottomRight / new Vector2(this.Map.TileSize);
 
             var minY = MathHelper.Max((int)topLeftTile.Y - 1, 0);
-            var maxY = MathHelper.Min((int)bottomRightTile.Y + 1, this.Map.Height);
+            var maxY = MathHelper.Min((int)bottomRightTile.Y + 1, this.Map.Height - 1);
             var minX = MathHelper.Max((int)topLeftTile.X - 1, 0);
-            var maxX = MathHelper.Min((int)bottomRightTile.X + 1, this.Map.Width);
+            var maxX = MathHelper.Min((int)bottomRightTile.X + 1, this.Map.Width - 1);
 
             var pos = new Vector2(0, minY * this.Map.TileSize);
             var startX = minX * this.Map.TileSize;

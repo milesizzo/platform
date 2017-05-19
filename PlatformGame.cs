@@ -31,7 +31,7 @@ namespace Platform
             {
                 return new PlatformEditorScene(key, this.GraphicsDevice, this.Store);
             });
-            this.SetCurrentScene("Main");
+            this.SetCurrentScene("Editor");
         }
 
         protected override void UnloadContent()
@@ -41,10 +41,12 @@ namespace Platform
 
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
+            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
 
-            // TODO: Add your update logic here
+            if (this.CurrentScene == null)
+            {
+                Exit();
+            }
 
             base.Update(gameTime);
         }

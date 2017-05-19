@@ -41,6 +41,11 @@ namespace Platform
 
             this.Context.LightsEnabled = true;
 
+            this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
+            this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
+            this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
+            this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
+
             this.Camera.LookAt(new Vector2(0, 0));
             this.Camera.SamplerState = SamplerState.PointClamp;
             this.Camera.Zoom = 2f;
@@ -131,11 +136,6 @@ namespace Platform
         {
             base.SetUp();
 
-            this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
-            this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
-            this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
-            this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
-
             if (File.Exists("landscape.map"))
             {
                 this.Context.Map = BinTileMapSerializer.Load("landscape.map");
@@ -167,6 +167,10 @@ namespace Platform
             var mouse = Mouse.GetState();
             var keyboard = Keyboard.GetState();
             var elapsed = gameTime.GetElapsedSeconds();
+            if (keyboard.IsKeyDown(Keys.Escape))
+            {
+                this.SceneEnded = true;
+            }
             if (keyboard.IsKeyDown(Keys.Right))
             {
                 this.Camera.Position += new Vector2(elapsed * 100, 0);
