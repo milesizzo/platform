@@ -191,7 +191,7 @@ namespace Platform
 
                 // zoom camera
                 var scroll = MouseHelper.ScrollDirection;
-                this.Camera.Zoom += (float)(scroll * gameTime.ElapsedGameTime.TotalSeconds * 10);
+                this.Camera.Zoom = MathHelper.Max(0.1f, this.Camera.Zoom + (float)(scroll * gameTime.ElapsedGameTime.TotalSeconds * 10));
 
                 // tile placement
                 var mouseTile = this.MouseToTile;

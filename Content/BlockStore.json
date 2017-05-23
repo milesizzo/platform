@@ -1,0 +1,35 @@
+{
+  "blockstore": {
+    "blocks": [
+      {
+        "material": "Dirt",
+        "tiles": [
+          0,
+          1
+        ]
+      },
+      {
+        "material": "Water",
+        "tiles": [
+          2
+        ]
+      }
+    ],
+    "tiles": [
+      {
+        "type": 0,
+        "parent": "tiles.dirt",
+        "index": 0
+      },
+      {
+        "type": 0,
+        "parent": "tiles.dirt",
+        "index": 1
+      },
+      {
+        "type": 1,
+        "sprite": "tiles.water"
+      }
+    ]
+  }
+}

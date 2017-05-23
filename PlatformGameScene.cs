@@ -13,6 +13,8 @@ using MonoGame.Extended;
 using GameEngine.Helpers;
 using CommonLibrary;
 using System.IO;
+using CommonLibrary.Serializing;
+using Platform.Serializing;
 
 namespace Platform
 {
@@ -41,10 +43,18 @@ namespace Platform
 
             this.Context.LightsEnabled = true;
 
-            this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
+            /*this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
             this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
             this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
             this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
+            using (var serializer = new MgiJsonSerializer("blockstore.json", SerializerMode.Write))
+            {
+                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
+            }*/
+            using (var serializer = new MgiJsonSerializer("BlockStore.json", SerializerMode.Read))
+            {
+                serializer.Context.ReadInto("blockstore", this.Context.BlockStore, (context, blockStore) => PlatformSerialize.ReadInto(context, this.Store, blockStore));
+            }
 
             this.Camera.LookAt(new Vector2(0, 0));
             this.Camera.SamplerState = SamplerState.PointClamp;

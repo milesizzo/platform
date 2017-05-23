@@ -18,7 +18,7 @@ namespace Platform
     public class PlatformContext : GameContext
     {
         public TileMap Map;
-        public readonly BlockStore BlockStore = new BlockStore();
+        public BlockStore BlockStore = new BlockStore();
         public RectangleF VisibleBounds;
         private readonly Camera camera;
         private readonly List<Light> lights = new List<Light>();
