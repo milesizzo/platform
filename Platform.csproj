@@ -68,6 +68,7 @@
     <Compile Include="AccidentalNoise\Util\SMappingRanges.cs" />
     <Compile Include="BasePlatformGameScene.cs" />
     <Compile Include="BlockStore.cs" />
+    <Compile Include="Editor\TileStencil.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MapProcessor.cs" />
     <Compile Include="PlatformContext.cs" />
@@ -79,6 +80,8 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializing\Serialize.BlockStore.cs" />
+    <Compile Include="Serializing\Serialize.Tile.cs" />
+    <Compile Include="Serializing\Serialize.TileStencil.cs" />
     <Compile Include="TerrainGenerator.cs" />
     <Compile Include="TileMap.cs" />
     <Compile Include="Tile.cs" />
@@ -122,6 +125,7 @@
     <Content Include="Content\Maps\landscape-handmade.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Content\BlockStore32x32.json" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

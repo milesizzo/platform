@@ -1,4 +1,6 @@
-﻿using CommonLibrary.Serializing;
+﻿#define MANUAL_BLOCKSTORE
+
+using CommonLibrary.Serializing;
 using GameEngine.Content;
 using GameEngine.Graphics;
 using GameEngine.Scenes;
@@ -39,15 +41,26 @@ namespace Platform
 
             this.Context.LightsEnabled = true;
 
-            /*var blockStore = new BlockStore(20);
-            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.crusader").Sprites);
-            blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 80, 81, 82, 83 });
-            blockStore.Blocks[MaterialType.Water].AddRange(new[] { 243, 244, 245 });
-            this.Context.BlockStore = blockStore;
-            using (var serializer = new MgiJsonSerializer("blockstore.json", SerializerMode.Write))
+#if MANUAL_BLOCKSTORE
+            this.Context.BlockStore = this.Setup16x16BlockStore();
+#else
+            using (var serializer = new MgiJsonSerializer("Content\\BlockStore32x32.json", SerializerMode.Read))
             {
-                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
-            }*/
+                this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", this.Store, PlatformSerialize.Read);
+            }
+#endif
+            this.Context.BlockStore.Prefabs.Add("tree1", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree1")));
+            this.Context.BlockStore.Prefabs.Add("tree2", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree2")));
+            this.Context.BlockStore.Prefabs.Add("tree3", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree3")));
+            this.Context.BlockStore.Prefabs.Add("tree4", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree4")));
+
+            this.Camera.LookAt(new Vector2(0, 0));
+            this.Camera.SamplerState = SamplerState.PointClamp;
+            this.Camera.Zoom = 4f;
+        }
+
+        private BlockStore Setup32x32BlockStore()
+        {
             var blockStore = new BlockStore(32);
             /*blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.001").Sprites);
             blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.002").Sprites);
@@ -62,25 +75,23 @@ namespace Platform
             blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 8 });
             blockStore.Blocks[MaterialType.Water].AddRange(new[] { 74 });
             blockStore.Blocks[MaterialType.Grass].AddRange(new[] { 43, 44 });
-            this.Context.BlockStore = blockStore;
-            using (var serializer = new MgiJsonSerializer("blockstore.json", SerializerMode.Write))
+            using (var serializer = new MgiJsonSerializer("BlockStore32x32.json", SerializerMode.Write))
             {
-                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
+                serializer.Context.Write("blockstore", blockStore, PlatformSerialize.Write);
             }
-            /*
-            using (var serializer = new MgiJsonSerializer("BlockStore.json", SerializerMode.Read))
-            {
-                this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", this.Store, PlatformSerialize.Read);
-            }
-            */
-            this.Context.BlockStore.Prefabs.Add("tree1", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree1")));
-            this.Context.BlockStore.Prefabs.Add("tree2", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree2")));
-            this.Context.BlockStore.Prefabs.Add("tree3", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree3")));
-            this.Context.BlockStore.Prefabs.Add("tree4", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree4")));
+            return blockStore;
+        }
 
-            this.Camera.LookAt(new Vector2(0, 0));
-            this.Camera.SamplerState = SamplerState.PointClamp;
-            this.Camera.Zoom = 4f;
+        private BlockStore Setup16x16BlockStore()
+        {
+            var blockStore = new BlockStore(16);
+            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt").Sprites);
+            blockStore.Blocks[MaterialType.Dirt].Add(101);
+            using (var serializer = new MgiJsonSerializer("BlockStore16x16.json", SerializerMode.Write))
+            {
+                serializer.Context.Write("blockstore", blockStore, PlatformSerialize.Write);
+            }
+            return blockStore;
         }
 
         public override void PreDraw(Renderer renderer)

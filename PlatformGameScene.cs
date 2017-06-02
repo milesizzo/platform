@@ -1,7 +1,5 @@
 ﻿using GameEngine.GameObjects;
-using GameEngine.Scenes;
 using System;
-using System.Linq;
 using System.Text;
 using GameEngine.Content;
 using GameEngine.Graphics;
@@ -12,9 +10,6 @@ using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using GameEngine.Helpers;
 using CommonLibrary;
-using System.IO;
-using CommonLibrary.Serializing;
-using Platform.Serializing;
 
 namespace Platform
 {

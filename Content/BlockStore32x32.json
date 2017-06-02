@@ -1,0 +1,528 @@
+{
+  "blockstore": {
+    "tilesize": 32,
+    "blocks": [
+      {
+        "material": "Dirt",
+        "tiles": [
+          8
+        ]
+      },
+      {
+        "material": "Water",
+        "tiles": [
+          74
+        ]
+      },
+      {
+        "material": "Grass",
+        "tiles": [
+          43,
+          44
+        ]
+      }
+    ],
+    "tiles": [
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 0
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 1
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 2
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 3
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 4
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 5
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 6
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 7
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 8
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 9
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 10
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 11
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 12
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 13
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 14
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 15
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 16
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 17
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 18
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 19
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 20
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 21
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 22
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 23
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 24
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 25
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 26
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 27
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 28
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 29
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 30
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 31
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 32
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 33
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 34
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 35
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 36
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 37
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 38
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 39
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 40
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 41
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 42
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 43
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 44
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 45
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 46
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 47
+      },
+      {
+        "type": 0,
+        "parent": "tiles.uppgk",
+        "index": 48
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 0
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 1
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 2
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 3
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 4
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 5
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 6
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 7
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 8
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 9
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 10
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 11
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 12
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 13
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 14
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 15
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 16
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 17
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 18
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 19
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 20
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 21
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 22
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 23
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 24
+      },
+      {
+        "type": 0,
+        "parent": "tiles.ppgk",
+        "index": 25
+      },
+      {
+        "type": 0,
+        "parent": "tiles.stonefence",
+        "index": 0
+      },
+      {
+        "type": 0,
+        "parent": "tiles.stonefence",
+        "index": 1
+      },
+      {
+        "type": 0,
+        "parent": "tiles.stonefence",
+        "index": 2
+      },
+      {
+        "type": 0,
+        "parent": "tiles.stonefence",
+        "index": 3
+      },
+      {
+        "type": 0,
+        "parent": "tiles.stonefence",
+        "index": 4
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 0
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 1
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 2
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 3
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 4
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 5
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 6
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 7
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 8
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 9
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 10
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 11
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 12
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 13
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 14
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 15
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 16
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 17
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 18
+      },
+      {
+        "type": 0,
+        "parent": "tiles.blocks",
+        "index": 19
+      }
+    ]
+  }
+}

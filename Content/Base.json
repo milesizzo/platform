@@ -77,6 +77,13 @@
       "height": 32
     },
     {
+      "name": "tiles.pfpt",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/tileset-16x16",
+      "width": 16,
+      "height": 16
+    },
+    {
       "name": "lightmask",
       "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
       "texture": "lightmask",

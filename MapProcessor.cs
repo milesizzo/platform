@@ -271,4 +271,101 @@ namespace Platform
             }
         }
     }
+
+    public class PFPTMapProcessor : MapProcessor
+    {
+        public override void Process(TileMap map)
+        {
+            var dirt = new DirtLookup((y, x) =>
+            {
+                if (y < 0 || y >= map.Height || x < 0 || x >= map.Width) return false;
+                var cell = map[y, x];
+                return cell.Block != null;
+            });
+
+            var random = new Random();
+            for (var y = 0; y < map.Height; y++)
+            {
+                for (var x = 0; x < map.Width; x++)
+                {
+                    var cell = map[y, x];
+                    if (dirt.Build(map, y, x))
+                    {
+                        var block = cell.Block;
+                        if (dirt.Match(null, false, null, true, null, true, null, false))
+                        {
+                            block = new Block { Id = 80 };
+                        }
+                        else if (dirt.Match(null, false, null, false, null, true, null, true))
+                        {
+                            block = new Block { Id = 84 };
+                        }
+                        else if (dirt.Match(null, false, null, true, null, true, null, true))
+                        {
+                            block = new Block { Id = 81 };
+                        }
+                        else if (dirt.Match(null, true, null, true, null, true, null, false))
+                        {
+                            block = new Block { Id = 90 };
+                        }
+                        else if (dirt.Match(null, true, null, true, null, false, null, false))
+                        {
+                            block = new Block { Id = 110 };
+                        }
+                        else if (dirt.Match(null, true, null, false, null, false, null, true))
+                        {
+                            block = new Block { Id = 114 };
+                        }
+                        else if (dirt.Match(null, true, null, true, null, false, null, true))
+                        {
+                            block = new Block { Id = 111 };
+                        }
+                        else if (dirt.Match(null, true, null, false, null, true, null, true))
+                        {
+                            block = new Block { Id = 94 };
+                        }
+                        else if (dirt.Match(null, false, null, false, null, false, null, false))
+                        {
+                            block = new Block { Id = 81 };
+                        }
+                        else if (dirt.Match(null, false, null, true, null, false, null, false))
+                        {
+                            block = new Block { Id = 80 };
+                        }
+                        else if (dirt.Match(null, false, null, false, null, false, null, true))
+                        {
+                            block = new Block { Id = 84 };
+                        }
+                        else if (dirt.Match(null, false, null, true, null, false, null, true))
+                        {
+                            block = new Block { Id = 81 };
+                        }
+                        cell.Block = block;
+
+                        // add decorations
+                        /*if (dirt.Match(null, false, null, null, null, null, null, null))
+                        {
+                            var above = map[y - 1, x];
+                            // add grass etc.
+                            var grass = random.Choice(43, 44);
+                            above.Foreground.Add(new Block { Id = grass });
+                            if (random.Next(10) == 0 && grass == 43)
+                            {
+                                // randomly add background grass
+                                above.Background.Add(new Block { Id = 44 });
+                            }
+                            if (grass == 44)
+                            {
+                                // we can optionally add flowers
+                                if (random.Next(5) == 0)
+                                {
+                                    above.Foreground.Add(new Block { Id = random.Choice(32, 39, 46) });
+                                }
+                            }
+                        }*/
+                    }
+                }
+            }
+        }
+    }
 }
