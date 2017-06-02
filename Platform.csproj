@@ -66,6 +66,8 @@
     <Compile Include="AccidentalNoise\Sphere.cs" />
     <Compile Include="AccidentalNoise\TranslatedDomain.cs" />
     <Compile Include="AccidentalNoise\Util\SMappingRanges.cs" />
+    <Compile Include="BasePlatformGameScene.cs" />
+    <Compile Include="BlockStore.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MapProcessor.cs" />
     <Compile Include="PlatformContext.cs" />
@@ -79,6 +81,8 @@
     <Compile Include="Serializing\Serialize.BlockStore.cs" />
     <Compile Include="TerrainGenerator.cs" />
     <Compile Include="TileMap.cs" />
+    <Compile Include="Tile.cs" />
+    <Compile Include="VisiblePlatformObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">

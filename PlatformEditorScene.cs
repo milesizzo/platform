@@ -87,28 +87,13 @@ namespace Platform
             label.Text = "Tiles:";
             label.TextColour = Color.Yellow;
             label.Font = font;
-            var grid = new UIImageGridPicker(20, 30, tiles);
+            var grid = new UIImageGridPicker(10, 20, tiles);
             grid.AddSprites(this.Context.BlockStore.Tiles);
             grid.GridClick += (b, p) =>
             {
                 var index = grid.PointToIndex(p);
                 this.currTile = new Block { Id = index };
             };
-            /*var grid = new UIRowLayout(tiles);
-            var id = 0;
-            for (var j = 0; j < this.Context.BlockStore.Tiles.Count / 20; j++)
-            {
-                var row = new UIColumnLayout(grid);
-                for (var i = 0; i < 20; i++)
-                {
-                    if (id >= this.Context.BlockStore.Tiles.Count) break;
-                    var sprite = this.Context.BlockStore.Tiles[id];
-                    var button = new UIIconButton(row);
-                    button.Icon = sprite;
-                    button.ButtonClick += this.ButtonDelegate(id);
-                    id++;
-                }
-            }*/
 
             // prefabs
             var prefabs = new UIColumnLayout(rows);
@@ -162,11 +147,6 @@ namespace Platform
 
             this.Context.Time = new TimeSpan(12, 0, 0);
             this.Camera.Position = Vector2.Zero;
-        }
-
-        private UIButtonClicked ButtonDelegate(int i)
-        {
-            return b => this.currTile = new Block { Id = i };
         }
 
         private Point MouseToTile
