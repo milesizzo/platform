@@ -18,7 +18,7 @@ namespace Platform
     public class PlatformContext : GameContext
     {
         public TileMap Map;
-        public BlockStore BlockStore = new BlockStore();
+        public BlockStore BlockStore;
         public RectangleF VisibleBounds;
         private readonly Camera camera;
         private readonly List<Light> lights = new List<Light>();
@@ -82,14 +82,14 @@ namespace Platform
         private Color ambientLight;
         private bool enabled = true;
 
-        public PlatformContext(Store store, Camera camera) : base(store)
+        public PlatformContext(Camera camera) : base()
         {
             this.camera = camera;
         }
 
-        public PlatformContext(Store store, Camera camera, int width, int height, int tilesize) : base(store)
+        public PlatformContext(Camera camera, int width, int height) : base()
         {
-            this.Map = new TileMap(width, height, tilesize);
+            this.Map = new TileMap(width, height);
             this.camera = camera;
         }
 
@@ -101,7 +101,7 @@ namespace Platform
 
         public Point WorldToTile(Vector2 world)
         {
-            return new Point((int)(world.X / this.Map.TileSize), (int)(world.Y / this.Map.TileSize));
+            return new Point((int)(world.X / this.BlockStore.TileSize), (int)(world.Y / this.BlockStore.TileSize));
         }
 
         public Vector2 TileToWorld(Point tile)
@@ -111,7 +111,7 @@ namespace Platform
 
         public Vector2 TileToWorld(int x, int y)
         {
-            return new Vector2(x * this.Map.TileSize, y * this.Map.TileSize);
+            return new Vector2(x * this.BlockStore.TileSize, y * this.BlockStore.TileSize);
         }
 
         public bool IsInBounds(Point tile)
@@ -183,24 +183,6 @@ namespace Platform
             this.ambientBackground = this.Lerp(this.ambientBackgroundAtHour[hour], this.ambientBackgroundAtHour[nextHour], scale);
         }
 
-        private void DrawTile(Renderer renderer, Vector2 pos, ITile tile, float depth, Color colour)
-        {
-            if (tile == null) return;
-
-            var sprite = tile.GetSprite(this.BlockStore);
-            if (sprite == null)
-            {
-                renderer.World.DrawRectangle(pos, new Size2(this.Map.TileSize - 1, this.Map.TileSize - 1), Color.Red);
-                var font = this.Store.Fonts("Base", "debug.small");
-                var s = $"{tile.DebugString}";
-                font.DrawString(renderer.World, pos + new Vector2(this.Map.TileSize / 2) - font.Font.MeasureString(s) / 2, s, Color.Yellow);
-            }
-            else
-            {
-                sprite.DrawSprite(renderer.World, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
-            }
-        }
-
         public override void Draw(Renderer renderer, GameTime gameTime)
         {
             var topLeft = this.camera.ScreenToWorld(Vector2.Zero);
@@ -209,34 +191,49 @@ namespace Platform
 
             base.Draw(renderer, gameTime);
 
-            var topLeftTile = topLeft / new Vector2(this.Map.TileSize);
-            var bottomRightTile = bottomRight / new Vector2(this.Map.TileSize);
+            var topLeftTile = topLeft / new Vector2(this.BlockStore.TileSize);
+            var bottomRightTile = bottomRight / new Vector2(this.BlockStore.TileSize);
 
             var minY = MathHelper.Max((int)topLeftTile.Y - 1, 0);
             var maxY = MathHelper.Min((int)bottomRightTile.Y + 1, this.Map.Height - 1);
             var minX = MathHelper.Max((int)topLeftTile.X - 1, 0);
             var maxX = MathHelper.Min((int)bottomRightTile.X + 1, this.Map.Width - 1);
 
-            var pos = new Vector2(0, minY * this.Map.TileSize);
-            var startX = minX * this.Map.TileSize;
+            var pos = new Vector2(0, minY * this.BlockStore.TileSize);
+            var startX = minX * this.BlockStore.TileSize;
             for (var y = minY; y <= maxY; y++)
             {
                 pos.X = startX;
                 for (var x = minX; x <= maxX; x++)
                 {
                     var cell = this.Map[y, x];
-                    foreach (var tile in cell.Background)
+                    if (cell.Background.Count > 0)
                     {
-                        this.DrawTile(renderer, pos, tile, 0.9f, Color.White);
+                        // (0.09, 0.08] is background
+                        var diff = (1f / cell.Background.Count) * 0.01f;
+                        var depth = 0.9f - diff;
+                        foreach (var tile in cell.Background)
+                        {
+                            this.BlockStore.DrawTile(renderer.World, pos, tile, depth, Color.White);
+                            depth -= diff;
+                        }
                     }
-                    this.DrawTile(renderer, pos, cell.Block, 0.02f, Color.White);
-                    foreach (var tile in cell.Foreground)
+                    // 0.02 is 'block'
+                    this.BlockStore.DrawTile(renderer.World, pos, cell.Block, 0.02f, Color.White);
+                    if (cell.Foreground.Count > 0)
                     {
-                        this.DrawTile(renderer, pos, tile, 0.01f, Color.White);
+                        // (0.02, 0.01] is foreground
+                        var diff = (1f / cell.Foreground.Count) * 0.01f;
+                        var depth = 0.02f - diff;
+                        foreach (var tile in cell.Foreground)
+                        {
+                            this.BlockStore.DrawTile(renderer.World, pos, tile, depth, Color.White);
+                            depth -= diff;
+                        }
                     }
-                    pos.X += this.Map.TileSize;
+                    pos.X += this.BlockStore.TileSize;
                 }
-                pos.Y += this.Map.TileSize;
+                pos.Y += this.BlockStore.TileSize;
             }
         }
     }

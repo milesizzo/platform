@@ -41,15 +41,6 @@ namespace Platform
             return noise;
         }
 
-        private Vector2 Transform(Point tilePos)
-        {
-            // convert to range [-1, 1)
-            //return new Vector2((tilePos.X - this.halfWidth) / this.halfWidth, (tilePos.Y - this.halfHeight) / this.halfHeight);
-
-            // convert to range [0, 1)
-            return new Vector2(tilePos.X * (float)this.map.TileSize, tilePos.Y * (float)this.map.TileSize);
-        }
-
         /*private float Noise(IModule2D noise, float x)
         {
             return noise.GetValue(x, 0) / 2f + 0.5f;

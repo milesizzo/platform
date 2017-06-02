@@ -1,5 +1,7 @@
 ﻿using GameEngine;
+using GameEngine.Content;
 using GameEngine.Graphics;
+using GameEngine.Helpers;
 using GameEngine.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,14 +24,14 @@ namespace Platform
 
         protected override void LoadContent()
         {
-            this.Store.LoadFromJson("Content\\Base.json");
+            Store.Instance.LoadFromJson("Content\\Base.json");
             this.Scenes.GetOrAdd<IScene>("Main", (key) =>
             {
-                return new PlatformGameScene(key, this.GraphicsDevice, this.Store);
+                return new PlatformGameScene(key, this.GraphicsDevice);
             });
             this.Scenes.GetOrAdd<IScene>("Editor", (key) =>
             {
-                return new PlatformEditorScene(key, this.GraphicsDevice, this.Store);
+                return new PlatformEditorScene(key, this.GraphicsDevice);
             });
             this.SetCurrentScene("Editor");
         }
@@ -47,13 +49,21 @@ namespace Platform
             {
                 Exit();
             }
+            if (KeyboardHelper.KeyPressed(Keys.F1))
+            {
+                this.SetCurrentScene("Editor");
+            }
+            else if (KeyboardHelper.KeyPressed(Keys.F2))
+            {
+                this.SetCurrentScene("Main");
+            }
 
             base.Update(gameTime);
         }
 
         protected override void Draw(Renderer renderer)
         {
-            var font = this.Store.Fonts("Base", "debug");
+            var font = Store.Instance.Fonts("Base", "debug");
             renderer.Screen.DrawString(font.Font, $"FPS: {this.FPS}", new Vector2(1024, 10), Color.White);
             base.Draw(renderer);
         }

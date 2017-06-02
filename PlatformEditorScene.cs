@@ -13,6 +13,8 @@ using GameEngine.Templates;
 using GameEngine.Helpers;
 using GameEngine.UI;
 using CommonLibrary;
+using MonoGame.Extended;
+using System.IO;
 
 namespace Platform
 {
@@ -36,13 +38,13 @@ namespace Platform
         }
         private TilePlacement? lastPlacement = null;
 
-        public PlatformEditorScene(string name, GraphicsDevice graphics, Store store) : base(name, graphics, store)
+        public PlatformEditorScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
         }
 
         protected override PlatformContext CreateContext()
         {
-            var context = new PlatformContext(this.Store, this.Camera, 2048, 1024, 16);
+            var context = new PlatformContext(this.Camera, 256, 128);
             context.Enabled = false;
             return context;
         }
@@ -51,8 +53,12 @@ namespace Platform
         {
             base.SetUp();
 
-            var font = this.Store.Fonts("Base", "debug");
-            this.Context.Map = BinTileMapSerializer.Load("landscape.map");
+            var font = Store.Instance.Fonts("Base", "debug");
+            if (!File.Exists("editor.map"))
+            {
+                File.Copy("Content\\Maps\\landscape.map", "editor.map", true);
+            }
+            this.Context.Map = BinTileMapSerializer.Load("editor.map");
 
             var panel = new UIPanel();
 
@@ -64,7 +70,6 @@ namespace Platform
             label.Text = "Material:";
             label.TextColour = Color.Yellow;
             label.Font = font;
-            UIElement last = label;
             foreach (var type in this.Context.BlockStore.Blocks.Keys)
             {
                 var button = new UIButton(materials);
@@ -74,7 +79,6 @@ namespace Platform
                 {
                     this.currTile = new Material { Type = type };
                 };
-                last = button;
             }
 
             // tiles 
@@ -83,18 +87,55 @@ namespace Platform
             label.Text = "Tiles:";
             label.TextColour = Color.Yellow;
             label.Font = font;
-            last = label;
-            var id = 0;
-            foreach (var sprite in this.Context.BlockStore.Tiles)
+            var grid = new UIImageGridPicker(20, 30, tiles);
+            grid.AddSprites(this.Context.BlockStore.Tiles);
+            grid.GridClick += (b, p) =>
             {
-                var button = new UIIconButton(tiles);
-                button.Icon = sprite;
-                button.ButtonClick += this.ButtonDelegate(id);
-                id++;
+                var index = grid.PointToIndex(p);
+                this.currTile = new Block { Id = index };
+            };
+            /*var grid = new UIRowLayout(tiles);
+            var id = 0;
+            for (var j = 0; j < this.Context.BlockStore.Tiles.Count / 20; j++)
+            {
+                var row = new UIColumnLayout(grid);
+                for (var i = 0; i < 20; i++)
+                {
+                    if (id >= this.Context.BlockStore.Tiles.Count) break;
+                    var sprite = this.Context.BlockStore.Tiles[id];
+                    var button = new UIIconButton(row);
+                    button.Icon = sprite;
+                    button.ButtonClick += this.ButtonDelegate(id);
+                    id++;
+                }
+            }*/
+
+            // prefabs
+            var prefabs = new UIColumnLayout(rows);
+            label = new UILabel(prefabs);
+            label.Text = "Objects:";
+            label.TextColour = Color.Yellow;
+            label.Font = font;
+            foreach (var prefab in this.Context.BlockStore.Prefabs.Values)
+            {
+                var button = new UIIconButton(prefabs);
+                button.Icon = prefab.Sprite;
+                button.ButtonClick += b =>
+                {
+                    //
+                };
             }
 
             // menu
             var menu = new UIColumnLayout(rows);
+            var process = new UIButton(menu);
+            process.Label.Text = "Process";
+            process.Label.Font = font;
+            process.ButtonClick += b =>
+            {
+                var processor = new UPPGKMapProcessor();
+                processor.Process(this.Context.Map);
+            };
             var save = new UIButton(menu);
             save.Label.Text = "Save";
             save.Label.Font = font;
@@ -110,8 +151,8 @@ namespace Platform
                 this.SceneEnded = true;
             };
 
-            panel.Size.X = 400;
-            panel.Size.Y = 200;
+            panel.Size.X = 1400;
+            panel.Size.Y = 800;
             panel.Placement.RelativeX = 0.5f;
             panel.Placement.RelativeY = 0.5f;
             panel.Origin = UIOrigin.Centre;
@@ -144,7 +185,7 @@ namespace Platform
             var mouse = Mouse.GetState();
             if (this.UI.Enabled)
             {
-                if (KeyboardHelper.KeyPressed(Keys.F1))
+                if (KeyboardHelper.KeyPressed(Keys.Escape))
                 {
                     this.UI.Enabled = false;
                 }
@@ -152,7 +193,7 @@ namespace Platform
             else
             {
                 // show UI
-                if (KeyboardHelper.KeyPressed(Keys.F1))
+                if (KeyboardHelper.KeyPressed(Keys.Escape))
                 {
                     this.UI.Enabled = true;
                 }
@@ -200,18 +241,21 @@ namespace Platform
                     var last = this.lastPlacement;
                     if (mouse.LeftButton == ButtonState.Pressed && (!last.HasValue || last.Value.Location != mouseTile || last.Value.Button != MouseButton.Left))
                     {
-                        var cell = this.Context.Map[mouseTile];
-                        switch (this.layer)
+                        if (this.currTile != null)
                         {
-                            case Layer.Background:
-                                cell.Background.Add(this.currTile);
-                                break;
-                            case Layer.Blocking:
-                                cell.Block = this.currTile;
-                                break;
-                            case Layer.Foreground:
-                                cell.Foreground.Add(this.currTile);
-                                break;
+                            var cell = this.Context.Map[mouseTile];
+                            switch (this.layer)
+                            {
+                                case Layer.Background:
+                                    cell.Background.Add(this.currTile.Clone());
+                                    break;
+                                case Layer.Blocking:
+                                    cell.Block = this.currTile.Clone();
+                                    break;
+                                case Layer.Foreground:
+                                    cell.Foreground.Add(this.currTile.Clone());
+                                    break;
+                            }
                         }
                         this.lastPlacement = new TilePlacement { Location = mouseTile, Button = MouseButton.Left };
                     }
@@ -237,14 +281,15 @@ namespace Platform
 
         public override void Draw(Renderer renderer, GameTime gameTime)
         {
-            var font = this.Store.Fonts("Base", "debug");
+            var font = Store.Instance.Fonts("Base", "debug");
             var mouseTile = this.MouseToTile;
-            if (this.Context.IsInBounds(mouseTile))
+            if (this.Context.IsInBounds(mouseTile) && !this.UI.Enabled)
             {
                 if (this.currTile != null)
                 {
                     var world = this.Context.TileToWorld(mouseTile);
-                    this.currTile.GetSprite(this.Context.BlockStore).DrawSprite(renderer.World, world, 0.1f);
+                    this.Context.BlockStore.DrawTile(renderer.World, world, this.currTile, 0.1f, Color.White);
+                    renderer.World.DrawRectangle(world, new Size2(this.Context.BlockStore.TileSize, this.Context.BlockStore.TileSize), Color.White);
                 }
                 var tileText = new StringBuilder();
                 var cell = this.Context.Map[mouseTile];
@@ -267,8 +312,13 @@ namespace Platform
             {
                 font.DrawString(renderer.Screen, new Vector2(0, 600), "Current tile ", Color.White);
                 var size = font.Font.MeasureString("Current tile ");
-                this.currTile.GetSprite(this.Context.BlockStore).DrawSprite(renderer.Screen, new Vector2(size.X, 600), 0);
+                this.Context.BlockStore.DrawTile(renderer.Screen, new Vector2(size.X, 600), this.currTile, 0f, Color.White);
             }
+
+            renderer.World.DrawRectangle(
+                new Vector2(-1, 1),
+                new Size2(this.Context.Map.Width * this.Context.BlockStore.TileSize + 2, this.Context.Map.Height * this.Context.BlockStore.TileSize + 2),
+                Color.White);
 
             base.Draw(renderer, gameTime);
         }

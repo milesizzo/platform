@@ -11,6 +11,7 @@ using GameEngine.Extensions;
 using MonoGame.Extended;
 using Microsoft.Xna.Framework.Graphics;
 using FarseerPhysics.Common;
+using GameEngine.Content;
 
 namespace Platform
 {
@@ -207,7 +208,7 @@ namespace Platform
                 if (AbstractObject.DebugInfo)
                 {
                     renderer.World.DrawRectangle(this.bounds, Color.White);
-                    renderer.World.DrawString(this.Context.Store.Fonts("Base", "debug"), $"{this.bounds}, {this.velocity}, {this.OnGround}", this.Position - new Vector2(0, 20), Color.White);
+                    renderer.World.DrawString(Store.Instance.Fonts("Base", "debug"), $"{this.bounds}, {this.velocity}, {this.OnGround}", this.Position - new Vector2(0, 20), Color.White);
                 }
             }
 

@@ -67,15 +67,16 @@
     <Compile Include="AccidentalNoise\TranslatedDomain.cs" />
     <Compile Include="AccidentalNoise\Util\SMappingRanges.cs" />
     <Compile Include="Light.cs" />
+    <Compile Include="MapProcessor.cs" />
     <Compile Include="PlatformContext.cs" />
     <Compile Include="PlatformEditorScene.cs" />
     <Compile Include="PlatformGame.cs" />
     <Compile Include="PlatformGameScene.cs" />
     <Compile Include="PlatformObject.cs" />
+    <Compile Include="Prefab.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Serializing\Serialize.BlockStore.cs" />
-    <Compile Include="Serializing\Serialize.TileMap.cs" />
     <Compile Include="TerrainGenerator.cs" />
     <Compile Include="TileMap.cs" />
   </ItemGroup>
@@ -108,9 +109,15 @@
     <Content Include="Content\BlockStore.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Content\Maps\landscape.map">
+    <Content Include="Content\Maps\landscape.map">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Include="Content\Maps\handmade.map">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Content\Maps\landscape-handmade.map">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -1,9 +1,12 @@
 ﻿using CommonLibrary;
+using GameEngine.Content;
+using GameEngine.Graphics;
 using GameEngine.Templates;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.Zip;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,20 +21,23 @@ namespace Platform
     {
         Dirt,
         Water,
+        Grass,
     }
 
     public interface ITile
     {
-        ISpriteTemplate GetSprite(BlockStore store);
+        bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth);
 
         string DebugString { get; }
+
+        ITile Clone();
     }
 
     public class Material : ITile
     {
         public MaterialType Type;
 
-        public ISpriteTemplate GetSprite(BlockStore store)
+        private ISpriteTemplate GetSprite(BlockStore store)
         {
             var ids = store.Blocks[this.Type];
             if (!ids.Any())
@@ -46,27 +52,48 @@ namespace Platform
         {
             get { return $"{this.Type.ToString().First()}"; }
         }
+
+        public ITile Clone()
+        {
+            return new Material { Type = this.Type };
+        }
+
+        public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth)
+        {
+            var sprite = this.GetSprite(store);
+            if (sprite == null) return false;
+            sprite.DrawSprite(sb, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
+            return true;
+        }
     }
 
     public class Block : ITile
     {
         public int Id;
 
-        public ISpriteTemplate GetSprite(BlockStore store)
-        {
-            return this.Id < store.Tiles.Count ? store.Tiles[this.Id] : null;
-        }
-
         public string DebugString
         {
             get { return $"{this.Id}"; }
+        }
+
+        public ITile Clone()
+        {
+            return new Block { Id = this.Id };
+        }
+
+        public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth)
+        {
+            if (this.Id >= store.Tiles.Count) return false;
+            var sprite = store.Tiles[this.Id];
+            sprite.DrawSprite(sb, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
+            return true;
         }
     }
 
     public class MapCell
     {
-        public readonly HashSet<ITile> Background = new HashSet<ITile>();
-        public readonly HashSet<ITile> Foreground = new HashSet<ITile>();
+        public readonly List<ITile> Background = new List<ITile>();
+        public readonly List<ITile> Foreground = new List<ITile>();
         public ITile Block = null;
     }
 
@@ -77,24 +104,37 @@ namespace Platform
 
     public class BlockStore
     {
+        public readonly int TileSize;
         public readonly DefaultDictionary<MaterialType, List<int>> Blocks = new DefaultDictionary<MaterialType, List<int>>(m => new List<int>());
         public readonly List<ISpriteTemplate> Tiles = new List<ISpriteTemplate>();
+        public readonly Dictionary<string, VisibleObjectPrefab> Prefabs = new Dictionary<string, VisibleObjectPrefab>();
 
-        public BlockStore()
+        public BlockStore(int tileSize)
         {
-            //
+            this.TileSize = tileSize;
+        }
+
+        public void DrawTile(SpriteBatch sb, Vector2 pos, ITile tile, float depth, Color colour)
+        {
+            if (tile == null) return;
+            if (!tile.Draw(this, sb, pos, colour, depth))
+            {
+                sb.DrawRectangle(pos, new Size2(this.TileSize - 1, this.TileSize - 1), Color.Red);
+                var font = Store.Instance.Fonts("Base", "debug.small");
+                var s = $"{tile.DebugString}";
+                font.DrawString(sb, pos + new Vector2(this.TileSize / 2) - font.Font.MeasureString(s) / 2, s, Color.Yellow);
+            }
         }
     }
 
     public class TileMap
     {
         public readonly List<MapRow> Rows = new List<MapRow>();
-        public readonly int TileSize;
         public readonly int Width;
         public readonly int Height;
         public Color BackgroundColour = Color.CornflowerBlue;
 
-        public TileMap(int width, int height, int tileSize)
+        public TileMap(int width, int height)
         {
             this.Width = width;
             this.Height = height;
@@ -107,7 +147,6 @@ namespace Platform
                 }
                 this.Rows.Add(row);
             }
-            this.TileSize = tileSize;
         }
 
         public MapCell this[int y, int x]
@@ -203,7 +242,6 @@ namespace Platform
         {
             writer.Write((Int32)map.Width);
             writer.Write((Int32)map.Height);
-            writer.Write((byte)map.TileSize);
             writer.Write((UInt32)map.BackgroundColour.PackedValue);
             foreach (var row in map.Rows)
             {
@@ -257,8 +295,7 @@ namespace Platform
         {
             var width = reader.ReadInt32();
             var height = reader.ReadInt32();
-            var tileSize = reader.ReadByte();
-            var result = new TileMap(width, height, tileSize);
+            var result = new TileMap(width, height);
 
             var bgcolour = new Color(reader.ReadUInt32());
             result.BackgroundColour = bgcolour;

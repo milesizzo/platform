@@ -3,141 +3,80 @@
   "name": "Base",
   "sprites": [
     {
-      "name": "default",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/block"
-    },
-    {
-      "name": "rock001",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (1)"
-    },
-    {
-      "name": "rock002",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (2)"
-    },
-    {
-      "name": "rock003",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (3)"
-    },
-    {
-      "name": "rock004",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (4)"
-    },
-    {
-      "name": "rock005",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (5)"
-    },
-    {
-      "name": "rock006",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (6)"
-    },
-    {
-      "name": "rock007",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (7)"
-    },
-    {
-      "name": "rock008",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (8)"
-    },
-    {
-      "name": "rock009",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (9)"
-    },
-    {
-      "name": "rock010",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (10)"
-    },
-    {
-      "name": "rock011",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (11)"
-    },
-    {
-      "name": "rock012",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Rock/rock (12)"
-    },
-    {
-      "name": "stone001",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone001"
-    },
-    {
-      "name": "stone002",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone002"
-    },
-    {
-      "name": "stone003",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone003"
-    },
-    {
-      "name": "stone004",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone004"
-    },
-    {
-      "name": "stone005",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone005"
-    },
-    {
-      "name": "stone006",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone006"
-    },
-    {
-      "name": "stone007",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone007"
-    },
-    {
-      "name": "stone008",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone008"
-    },
-    {
-      "name": "stone009",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone009"
-    },
-    {
-      "name": "stone010",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/stone010"
-    },
-    {
-      "name": "tiles.dirt",
+      "name": "tiles.001",
       "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Dirt/dirt",
-      "width": 16,
-      "height": 16,
-      "border": 0
+      "texture": "Tiles/tiles_001",
+      "width": 32,
+      "height": 32
     },
     {
-      "name": "tiles.water",
+      "name": "tiles.002",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/tiles_002",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "tiles.003",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/tiles_003",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "tiles.004",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/tiles_004",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "tiles.005",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/tiles_005",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "tiles.uppgk",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/UPPGK/tiles",
+      "width": 32,
+      "height": 32,
+      "count": 49,
+      "method": "VerticalFirst"
+    },
+    {
+      "name": "tiles.ppgk",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/ppgk",
+      "width": 32,
+      "height": 32,
+      "count": 26,
+      "method": "VerticalFirst"
+    },
+    {
+      "name": "tiles.ssgt",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/SSGT/tiles",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "tiles.stonefence",
+      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Tiles/stone-fence",
+      "width": 32,
+      "height": 32
+    },
+    {
+      "name": "lightmask",
       "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/Water/water"
-    },
-    {
+      "texture": "lightmask",
       "origin": {
         "x": 125,
         "y": 125
-      },
-      "name": "lightmask",
-      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "lightmask"
+      }
     },
     {
       "name": "player",
@@ -145,7 +84,6 @@
       "texture": "Characters/player",
       "width": 20,
       "height": 40,
-      "border": 0,
       "fps": 24,
       "frames": 32,
       "animations": [
@@ -192,6 +130,61 @@
       ]
     },
     {
+      "name": "player.cat",
+      "type": "GameEngine.Templates.NamedAnimatedSpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "Characters/Cat",
+      "width": 20,
+      "height": 20,
+      "border": 0,
+      "fps": 24,
+      "frames": 34,
+      "animations": [
+        {
+          "key": "WalkRight",
+          "fps": 0,
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ]
+        },
+        {
+          "key": "WalkLeft",
+          "fps": 0,
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ],
+          "effects": "FlipHorizontally"
+        },
+        {
+          "key": "JumpLeft",
+          "fps": 0,
+          "frames": [ 11 ],
+          "effects": "FlipHorizontally"
+        },
+        {
+          "key": "JumpRight",
+          "fps": 0,
+          "frames": [ 11 ]
+        },
+        {
+          "key": "IdleLeft",
+          "fps": 0,
+          "frames": [ 1 ],
+          "effects": "FlipHorizontally"
+        },
+        {
+          "key": "IdleRight",
+          "fps": 0,
+          "frames": [ 1 ]
+        },
+        {
+          "key": "Climbing",
+          "fps": 12,
+          "frames": [ 24, 25, 26, 27, 28, 29, 30, 31 ]
+        },
+        {
+          "key": "Falling",
+          "fps": 0,
+          "frames": [ 24 ]
+        }
+      ]
+    },
+    {
       "name": "torch1",
       "type": "GameEngine.Templates.AnimatedSpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
       "texture": "Objects/torch1",
@@ -200,14 +193,6 @@
       "border": 0,
       "fps": 12,
       "frames": 9
-    },
-    {
-      "name": "tiles.ground",
-      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/ground_tiles",
-      "width": 16,
-      "height": 16,
-      "border": 1
     },
     {
       "name": "tree1",
@@ -252,18 +237,14 @@
         "_y": 122.0
       },
       "texture": "Objects/tree4"
-    },
-    {
-      "name": "kenney.ground",
-      "type": "GameEngine.Templates.SpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
-      "texture": "Tiles/spritesheet_ground",
-      "width": 128,
-      "height": 128,
-      "border": 0
     }
   ],
   "audio": [],
   "fonts": [
+    {
+      "name": "pixel",
+      "asset": "Fonts/Pixel"
+    },
     {
       "name": "debug",
       "asset": "Fonts/DebugFont"

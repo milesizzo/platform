@@ -25,7 +25,7 @@ namespace Platform
         private Effect effect1;
         private ISpriteTemplate lightMask;
 
-        public BasePlatformGameScene(string name, GraphicsDevice graphics, Store store) : base(name, graphics, store)
+        public BasePlatformGameScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
             //
         }
@@ -38,27 +38,52 @@ namespace Platform
             this.lightsTarget = new RenderTarget2D(this.Graphics, pp.BackBufferWidth, pp.BackBufferHeight);
             this.mainTarget = new RenderTarget2D(this.Graphics, pp.BackBufferWidth, pp.BackBufferHeight);
 
-            this.effect1 = this.Store.Content.Load<Effect>("lighteffect");
-            this.lightMask = this.Store.Sprites<ISpriteTemplate>("Base", "lightmask");
+            this.effect1 = Store.Instance.Content.Load<Effect>("lighteffect");
+            this.lightMask = Store.Instance.Sprites<ISpriteTemplate>("Base", "lightmask");
 
             this.Context.LightsEnabled = true;
 
-            /*this.Context.BlockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.dirt").Sprites);
-            this.Context.BlockStore.Tiles.Add(this.Store.Sprites<ISpriteTemplate>("Base", "tiles.water"));
-            this.Context.BlockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 0, 1 });
-            this.Context.BlockStore.Blocks[MaterialType.Water].Add(2);
+            /*var blockStore = new BlockStore(20);
+            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.crusader").Sprites);
+            blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 80, 81, 82, 83 });
+            blockStore.Blocks[MaterialType.Water].AddRange(new[] { 243, 244, 245 });
+            this.Context.BlockStore = blockStore;
             using (var serializer = new MgiJsonSerializer("blockstore.json", SerializerMode.Write))
             {
                 serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
             }*/
+            var blockStore = new BlockStore(32);
+            /*blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.001").Sprites);
+            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.002").Sprites);
+            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.003").Sprites);
+            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.004").Sprites);
+            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.005").Sprites);*/
+            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.uppgk").Sprites);
+            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.ppgk").Sprites);
+            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.ssgt").Sprites);
+            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.stonefence").Sprites);
+            blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 8 });
+            blockStore.Blocks[MaterialType.Water].AddRange(new[] { 74 });
+            blockStore.Blocks[MaterialType.Grass].AddRange(new[] { 43, 44 });
+            this.Context.BlockStore = blockStore;
+            using (var serializer = new MgiJsonSerializer("blockstore.json", SerializerMode.Write))
+            {
+                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
+            }
+            /*
             using (var serializer = new MgiJsonSerializer("BlockStore.json", SerializerMode.Read))
             {
-                serializer.Context.ReadInto("blockstore", this.Context.BlockStore, (context, blockStore) => PlatformSerialize.ReadInto(context, this.Store, blockStore));
+                this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", this.Store, PlatformSerialize.Read);
             }
+            */
+            this.Context.BlockStore.Prefabs.Add("tree1", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree1")));
+            this.Context.BlockStore.Prefabs.Add("tree2", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree2")));
+            this.Context.BlockStore.Prefabs.Add("tree3", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree3")));
+            this.Context.BlockStore.Prefabs.Add("tree4", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree4")));
 
             this.Camera.LookAt(new Vector2(0, 0));
             this.Camera.SamplerState = SamplerState.PointClamp;
-            this.Camera.Zoom = 2f;
+            this.Camera.Zoom = 4f;
         }
 
         public override void PreDraw(Renderer renderer)
@@ -111,22 +136,21 @@ namespace Platform
         private string playerAnimation;
         private bool godMode = false;
 
-        public PlatformGameScene(string name, GraphicsDevice graphics, Store store) : base(name, graphics, store)
+        public PlatformGameScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
         }
 
         protected override PlatformContext CreateContext()
         {
-            return new PlatformContext(this.Store, this.Camera, 2048, 1024, 16);
+            return new PlatformContext(this.Camera, 2048, 1024);
         }
 
         private IGameObject MakeTree(Point basePos, float z, string asset)
         {
             var random = new Random();
-            var map = this.Context.Map;
             var tree = new VisiblePlatformObject(this.Context);
-            tree.Sprite = this.Store.Sprites<SingleSpriteTemplate>("Base", asset);
-            tree.Position3D = new Vector3(basePos.X * map.TileSize, basePos.Y * map.TileSize - tree.Sprite.Height - 5f, z);
+            tree.Sprite = Store.Instance.Sprites<SingleSpriteTemplate>("Base", asset);
+            tree.Position3D = new Vector3(basePos.X * this.Context.BlockStore.TileSize, basePos.Y * this.Context.BlockStore.TileSize - tree.Sprite.Height - 5f, z);
             this.Context.AddObject(tree);
             return tree;
         }
@@ -146,7 +170,8 @@ namespace Platform
         {
             base.SetUp();
 
-            if (File.Exists("landscape.map"))
+            this.Context.Map = BinTileMapSerializer.Load("editor.map");
+            /*if (File.Exists("landscape.map"))
             {
                 this.Context.Map = BinTileMapSerializer.Load("landscape.map");
             }
@@ -154,14 +179,14 @@ namespace Platform
             {
                 this.GenerateTerrain();
                 BinTileMapSerializer.Save("landscape.map", this.Context.Map);
-            }
+            }*/
             this.Context.Map.SaveToImage(this.Graphics, "map.png");
 
-            var startY = 200f * this.Context.Map.TileSize;
+            var startY = 160f * this.Context.BlockStore.TileSize;
 
             this.player = new VisiblePlatformObject(this.Context);
-            this.player.Position3D = new Vector3(10, startY, 0.5f);
-            this.player.Sprite = this.Store.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player").GetAnimation("IdleRight");
+            this.player.Position3D = new Vector3(1280, startY, 0.5f);
+            this.player.Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat").GetAnimation("IdleRight");
             this.player.IsGravityEnabled = !this.godMode;
             this.Context.AddObject(this.player);
             this.Context.AttachLightSource(this.player, new Light
@@ -298,7 +323,7 @@ namespace Platform
 
             if (!string.IsNullOrEmpty(animation) && animation != this.playerAnimation)
             {
-                this.player.Sprite = this.Store.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player").GetAnimation(animation);
+                this.player.Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat").GetAnimation(animation);
                 this.playerAnimation = animation;
             }
             this.Camera.LookAt(this.player.Position);
@@ -314,7 +339,7 @@ namespace Platform
             text.AppendLine($"Ambient light: {this.Context.AmbientLight}");
             text.AppendLine($"Background   : {this.Context.AmbientBackground}");
             text.AppendLine($"Time in game : {this.Context.Time}");
-            this.Store.Fonts("Base", "debug").DrawString(renderer.Screen, new Vector2(0, 0), text.ToString(), Color.White);
+            Store.Instance.Fonts("Base", "debug").DrawString(renderer.Screen, new Vector2(0, 0), text.ToString(), Color.White);
         }
     }
 }
