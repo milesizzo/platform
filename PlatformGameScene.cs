@@ -13,10 +13,45 @@ using CommonLibrary;
 
 namespace Platform
 {
+    public class Character : ITemplate
+    {
+        private readonly string name;
+
+        public float JumpPower;
+        public float WalkSpeed;
+        public float RunSpeed;
+        public float WalkMaxSpeed;
+        public float RunMaxSpeed;
+        public float WaterModifier;
+        public float SwimPower;
+        public NamedAnimatedSpriteSheetTemplate Sprite;
+
+        public Character(string name)
+        {
+            this.name = name;
+        }
+
+        public string Name { get { return this.name; } }
+    }
+
+    public class CharacterStore : TemplateStore<Character>
+    {
+        //
+    }
+
     public class PlatformGameScene : BasePlatformGameScene
     {
+        private enum Facing
+        {
+            Left,
+            Right
+        }
+
         private VisiblePlatformObject player;
+        private CharacterStore characters = new CharacterStore();
+        private Character character;
         private string playerAnimation;
+        private Facing playerFacing;
         private bool godMode = false;
 
         public PlatformGameScene(string name, GraphicsDevice graphics) : base(name, graphics)
@@ -67,9 +102,47 @@ namespace Platform
 
             var startY = 160f * this.Context.BlockStore.TileSize;
 
+            this.characters.GetOrAdd("Cat", (name) => new Character(name)
+            {
+                JumpPower = 500f,
+                WalkSpeed = 400f,
+                RunSpeed = 500f,
+                WalkMaxSpeed = 150f,
+                RunMaxSpeed = 250f,
+                WaterModifier = 0.4f,
+                SwimPower = 200f,
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat")
+            });
+
+            this.characters.GetOrAdd("Bear", (name) => new Character(name)
+            {
+                JumpPower = 400f,
+                WalkSpeed = 300f,
+                RunSpeed = 400f,
+                WalkMaxSpeed = 100f,
+                RunMaxSpeed = 150f,
+                WaterModifier = 0.4f,
+                SwimPower = 200f,
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.bear")
+            });
+
+            this.characters.GetOrAdd("Pig", (name) => new Character(name)
+            {
+                JumpPower = 450f,
+                WalkSpeed = 350f,
+                RunSpeed = 450f,
+                WalkMaxSpeed = 125f,
+                RunMaxSpeed = 175f,
+                WaterModifier = 0.4f,
+                SwimPower = 200f,
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.pig")
+            });
+
+            this.character = this.characters["Cat"];
+
             this.player = new VisiblePlatformObject(this.Context);
             this.player.Position3D = new Vector3(1280, startY, 0.5f);
-            this.player.Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat").GetAnimation("IdleRight");
+            this.playerFacing = Facing.Right;
             this.player.IsGravityEnabled = !this.godMode;
             this.Context.AddObject(this.player);
             this.Context.AttachLightSource(this.player, new Light
@@ -89,7 +162,7 @@ namespace Platform
             {
                 this.SceneEnded = true;
             }
-            if (keyboard.IsKeyDown(Keys.Right))
+            /*if (keyboard.IsKeyDown(Keys.Right))
             {
                 this.Camera.Position += new Vector2(elapsed * 100, 0);
             }
@@ -104,6 +177,22 @@ namespace Platform
             if (keyboard.IsKeyDown(Keys.Down))
             {
                 this.Camera.Position += new Vector2(0, elapsed * 100);
+            }*/
+
+            if (KeyboardHelper.KeyPressed(Keys.D1))
+            {
+                this.character = this.characters["Cat"];
+                this.playerAnimation = null;
+            }
+            if (KeyboardHelper.KeyPressed(Keys.D2))
+            {
+                this.character = this.characters["Bear"];
+                this.playerAnimation = null;
+            }
+            if (KeyboardHelper.KeyPressed(Keys.D3))
+            {
+                this.character = this.characters["Pig"];
+                this.playerAnimation = null;
             }
 
             if (KeyboardHelper.KeyPressed(Keys.F12))
@@ -132,14 +221,14 @@ namespace Platform
 
             if (this.godMode)
             {
-                if (keyboard.IsKeyDown(Keys.S))
+                if (keyboard.IsKeyDown(Keys.Down))
                 {
                     if (this.player.Velocity.Y < 150f)
                     {
                         this.player.Velocity += new Vector2(0, 150f);
                     }
                 }
-                else if (keyboard.IsKeyDown(Keys.W))
+                else if (keyboard.IsKeyDown(Keys.Up))
                 {
                     if (this.player.Velocity.Y > -150f)
                     {
@@ -155,58 +244,168 @@ namespace Platform
                     this.player.Velocity = new Vector2(this.player.Velocity.X, MathHelper.Min(this.player.Velocity.Y + 20f, 0));
                 }
             }
-            else if (keyboard.IsKeyDown(Keys.W) && this.player.OnGround)
-            {
-                this.player.Velocity += new Vector2(0, -750f);
-            }
 
-            if (keyboard.IsKeyDown(Keys.D))
+            if (this.player.InWater)
             {
-                animation = "WalkRight";
-                if (this.player.Velocity.X < 150f)
+                if (KeyboardHelper.KeyPressed(Keys.Space))
                 {
-                    this.player.Velocity += new Vector2(20f, 0);
+                    this.player.Velocity = new Vector2(this.player.Velocity.X, -this.character.SwimPower);
                 }
             }
-            if (keyboard.IsKeyDown(Keys.A))
+            else if (this.player.OnGround)
             {
-                animation = "WalkLeft";
-                if (this.player.Velocity.X > -150f)
+                if (keyboard.IsKeyDown(Keys.Space))
                 {
-                    this.player.Velocity -= new Vector2(20f, 0);
+                    this.player.Velocity = new Vector2(this.player.Velocity.X, -this.character.JumpPower);
                 }
             }
 
-            if (!keyboard.IsKeyDown(Keys.A) && !keyboard.IsKeyDown(Keys.D))
+            var squatting = false;
+            if (keyboard.IsKeyDown(Keys.S))
             {
-                // slow down
-                if (this.player.Velocity.X > 0)
+                squatting = true;
+            }
+            else
+            {
+                var modifier = this.player.InWater ? this.character.WaterModifier : 1.0f;
+                if (keyboard.IsKeyDown(Keys.D))
                 {
-                    this.player.Velocity = new Vector2(MathHelper.Max(this.player.Velocity.X - 20f, 0), this.player.Velocity.Y);
+                    this.playerFacing = Facing.Right;
+                    if (keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift))
+                    {
+                        if (this.player.Velocity.X < this.character.RunMaxSpeed * modifier)
+                        {
+                            var velocity = MathHelper.Min(this.player.Velocity.X + this.character.RunSpeed * elapsed, this.character.RunMaxSpeed);
+                            this.player.Velocity = new Vector2(velocity, this.player.Velocity.Y);
+                        }
+                    }
+                    else
+                    {
+                        if (this.player.Velocity.X < this.character.WalkMaxSpeed * modifier)
+                        {
+                            var velocity = MathHelper.Min(this.player.Velocity.X + this.character.WalkSpeed * elapsed, this.character.WalkMaxSpeed);
+                            this.player.Velocity = new Vector2(velocity, this.player.Velocity.Y);
+                        }
+                    }
                 }
-                else if (this.player.Velocity.X < 0)
+                if (keyboard.IsKeyDown(Keys.A))
                 {
-                    this.player.Velocity = new Vector2(MathHelper.Min(this.player.Velocity.X + 20f, 0), this.player.Velocity.Y);
+                    this.playerFacing = Facing.Left;
+                    if (keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift))
+                    {
+                        if (this.player.Velocity.X > -this.character.RunMaxSpeed * modifier)
+                        {
+                            var velocity = MathHelper.Max(this.player.Velocity.X - this.character.RunSpeed * elapsed, -this.character.RunMaxSpeed);
+                            this.player.Velocity = new Vector2(velocity, this.player.Velocity.Y);
+                        }
+                    }
+                    else
+                    {
+                        if (this.player.Velocity.X > -this.character.WalkMaxSpeed * modifier)
+                        {
+                            var velocity = MathHelper.Max(this.player.Velocity.X - this.character.WalkSpeed * elapsed, -this.character.WalkMaxSpeed);
+                            this.player.Velocity = new Vector2(velocity, this.player.Velocity.Y);
+                        }
+                    }
                 }
-                switch (this.playerAnimation)
+            }
+
+            if (this.player.Velocity.Y < -(4f * this.character.JumpPower / 15f))
+            {
+                switch (this.playerFacing)
                 {
-                    case "WalkRight":
-                        animation = "IdleRight";
+                    case Facing.Left:
+                        animation = "JumpLeft1";
                         break;
-                    case "WalkLeft":
-                        animation = "IdleLeft";
+                    case Facing.Right:
+                        animation = "JumpRight1";
                         break;
                 }
             }
-
-            if (KeyboardHelper.KeyPressed(Keys.F2))
+            else if (this.player.Velocity.Y > 4f * this.character.JumpPower / 15f)
             {
-                BinTileMapSerializer.Save("landscape.map", this.Context.Map);
+                switch (this.playerFacing)
+                {
+                    case Facing.Left:
+                        animation = "JumpLeft3";
+                        break;
+                    case Facing.Right:
+                        animation = "JumpRight3";
+                        break;
+                }
+            }
+            else if (this.player.Velocity.Y < 0 || this.player.Velocity.Y > 0 || !this.player.OnGround)
+            {
+                switch (this.playerFacing)
+                {
+                    case Facing.Left:
+                        animation = "JumpLeft2";
+                        break;
+                    case Facing.Right:
+                        animation = "JumpRight2";
+                        break;
+                }
+            }
+            else
+            {
+                if (this.player.Velocity.X > this.character.WalkMaxSpeed)
+                {
+                    animation = squatting ? "SlideRight" : "RunRight";
+                }
+                else if (this.player.Velocity.X > 1f)
+                {
+                    animation = squatting ? "SlideRight" : "WalkRight";
+                }
+                else if (this.player.Velocity.X < -this.character.WalkMaxSpeed)
+                {
+                    animation = squatting ? "SlideLeft" : "RunLeft";
+                }
+                else if (this.player.Velocity.X < -1f)
+                {
+                    animation = squatting ? "SlideLeft" : "WalkLeft";
+                }
+                else
+                {
+                    if (squatting)
+                    {
+                        switch (this.playerFacing)
+                        {
+                            case Facing.Left:
+                                animation = "SquatLeft";
+                                break;
+                            case Facing.Right:
+                                animation = "SquatRight";
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        switch (this.playerFacing)
+                        {
+                            case Facing.Left:
+                                animation = "IdleLeft";
+                                break;
+                            case Facing.Right:
+                                animation = "IdleRight";
+                                break;
+                        }
+                    }
+                }
+            }
+
+            // slow down
+            if (this.player.Velocity.X > 0)
+            {
+                this.player.Velocity = new Vector2(MathHelper.Max(this.player.Velocity.X - 250f * elapsed, 0), this.player.Velocity.Y);
+            }
+            else if (this.player.Velocity.X < 0)
+            {
+                this.player.Velocity = new Vector2(MathHelper.Min(this.player.Velocity.X + 250f * elapsed, 0), this.player.Velocity.Y);
             }
 
             if (!string.IsNullOrEmpty(animation) && animation != this.playerAnimation)
             {
-                this.player.Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat").GetAnimation(animation);
+                this.player.Sprite = this.character.Sprite.GetAnimation(animation);
                 this.playerAnimation = animation;
             }
             this.Camera.LookAt(this.player.Position);
@@ -217,11 +416,12 @@ namespace Platform
             base.Draw(renderer, gameTime);
             var text = new StringBuilder();
             text.AppendLine($"Camera:");
-            text.AppendLine($"    Bounds: {this.Camera.Viewport.Bounds}");
-            text.AppendLine($"  Position: {this.Camera.Position}");
+            text.AppendLine($"       Bounds: {this.Camera.Viewport.Bounds}");
+            text.AppendLine($"     Position: {this.Camera.Position}");
             text.AppendLine($"Ambient light: {this.Context.AmbientLight}");
-            text.AppendLine($"Background   : {this.Context.AmbientBackground}");
-            text.AppendLine($"Time in game : {this.Context.Time}");
+            text.AppendLine($"   Background: {this.Context.AmbientBackground}");
+            text.AppendLine($" Time in game: {this.Context.Time}");
+            text.AppendLine($"    Character: {this.character.Name}");
             Store.Instance.Fonts("Base", "debug").DrawString(renderer.Screen, new Vector2(0, 0), text.ToString(), Color.White);
         }
     }

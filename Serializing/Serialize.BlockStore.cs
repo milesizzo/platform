@@ -16,7 +16,7 @@ namespace Platform.Serializing
         public static void Write(ISerializer context, BlockStore store)
         {
             context.Write("tilesize", store.TileSize);
-            context.WriteList("blocks", EnumHelper.GetValues<MaterialType>().Select(t => Tuple.Create(t, store.Blocks[t])).ToList(), Write);
+            //context.WriteList("blocks", EnumHelper.GetValues<MaterialType>().Select(t => Tuple.Create(t, store.Blocks[t])).ToList(), Write);
             context.WriteList("tiles", store.Tiles, Write);
         }
 
@@ -47,11 +47,11 @@ namespace Platform.Serializing
         {
             var tileSize = context.Read<int>("tilesize");
             blockStore = new BlockStore(tileSize);
-            var blocks = context.ReadList<Tuple<MaterialType, IList<int>>>("blocks", Read);
+            /*var blocks = context.ReadList<Tuple<MaterialType, IList<int>>>("blocks", Read);
             foreach (var block in blocks)
             {
                 blockStore.Blocks[block.Item1].AddRange(block.Item2);
-            }
+            }*/
             var tiles = context.ReadList<ISpriteTemplate, Store>("tiles", store, Read);
             blockStore.Tiles.AddRange(tiles);
         }

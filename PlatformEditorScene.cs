@@ -169,10 +169,11 @@ namespace Platform
 
             var panel = new UIPanel();
 
-            var rows = new UIRowLayout(panel);
+            var cols = new UIColumnLayout(panel, 0.8f, 0.2f);
+            var rows = new UIRowLayout(cols);
 
             // materials
-            var materials = new UIColumnLayout(rows);
+            /*var materials = new UIColumnLayout(rows);
             var label = new UILabel(materials);
             label.Text = "Material:";
             label.TextColour = Color.Yellow;
@@ -187,21 +188,21 @@ namespace Platform
                     this.curr = new TileStencil();
                     this.curr[0, 0] = new Material { Type = type };
                 };
-            }
+            }*/
 
             // tiles 
-            var tiles = new UIColumnLayout(rows);
+            /*var tiles = new UIColumnLayout(cols);
             label = new UILabel(tiles);
             label.Text = "Tiles:";
             label.TextColour = Color.Yellow;
-            label.Font = font;
-            var grid = new UIImageGridPicker(20, 40, tiles);
+            label.Font = font;*/
+            var grid = new UIImageGridPicker(62, 10, cols);
             grid.AddSprites(this.Context.BlockStore.Tiles);
             grid.GridClick += (b, p) =>
             {
                 var index = grid.PointToIndex(p);
                 this.curr = new TileStencil();
-                this.curr[0, 0] = new Block { Id = index };
+                this.curr[0, 0] = new Tile(index);
             };
 
             /*
@@ -224,7 +225,7 @@ namespace Platform
 
             // stencils
             var stencils = new UIColumnLayout(rows);
-            label = new UILabel(stencils);
+            var label = new UILabel(stencils);
             label.Text = "Stencils:";
             label.TextColour = Color.Yellow;
             label.Font = font;
@@ -402,10 +403,12 @@ namespace Platform
                 }
                 var tileText = new StringBuilder();
                 var cell = this.Context.Map[mouseTile];
-                tileText.AppendLine($"  Position: {mouseTile}");
-                tileText.AppendLine($"Foreground: " + string.Join(",", cell.Foreground.Select(t => t.DebugString)));
-                tileText.AppendLine($"Background: " + string.Join(",", cell.Background.Select(t => t.DebugString)));
-                tileText.AppendLine($"     Block: " + (cell.Block == null ? "null" : cell.Block.DebugString));
+                var materials = this.Context.GetMaterials(mouseTile);
+                tileText.AppendLine($"   Position: {mouseTile}");
+                tileText.AppendLine($" Foreground: " + string.Join(",", cell.Foreground.Select(t => t.DebugString)));
+                tileText.AppendLine($" Background: " + string.Join(",", cell.Background.Select(t => t.DebugString)));
+                tileText.AppendLine($"      Block: " + (cell.Block == null ? "null" : cell.Block.DebugString));
+                tileText.AppendLine($"Material(s): " + materials);
                 font.DrawString(renderer.Screen, new Vector2(0, 800), tileText.ToString(), Color.Wheat);
             }
 

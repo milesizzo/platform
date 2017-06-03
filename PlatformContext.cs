@@ -164,6 +164,41 @@ namespace Platform
 
         public Color AmbientLight { get { return this.ambientLight; } }
 
+        public Vector2 WorldToScreen(Vector2 pos)
+        {
+            return this.camera.WorldToScreen(pos);
+        }
+
+        public Vector2 ScreenToWorld(Vector2 pos)
+        {
+            return this.camera.ScreenToWorld(pos);
+        }
+
+        private MaterialType GetMaterials(ITile tile)
+        {
+            var result = MaterialType.None;
+            var asMaterial = tile as Material;
+            var asTile = tile as Tile;
+            if (asMaterial != null)
+            {
+                result |= asMaterial.Type;
+            }
+            else if (asTile != null)
+            {
+                result |= this.BlockStore[asTile.Id];
+            }
+            return result;
+        }
+
+        public MaterialType GetMaterials(Point pos)
+        {
+            var cell = this.Map[pos];
+            var result = cell.Foreground.Aggregate(MaterialType.None, (m, t) => m | this.GetMaterials(t));
+            result = cell.Background.Aggregate(result, (m, t) => m | this.GetMaterials(t));
+            result |= this.GetMaterials(cell.Block);
+            return result;
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (this.Enabled)

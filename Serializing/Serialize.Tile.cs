@@ -12,7 +12,7 @@ namespace Platform.Serializing
         public static void Write(ISerializer context, ITile tile)
         {
             var material = tile as Material;
-            var block = tile as Block;
+            var block = tile as Tile;
             if (material != null)
             {
                 context.Write("kind", "m");
@@ -36,11 +36,11 @@ namespace Platform.Serializing
             {
                 case "m":
                     var type = (MaterialType)context.Read<int>("type");
-                    tile = new Material { Type = type };
+                    tile = new Material(type);
                     break;
                 case "b":
                     var id = context.Read<int>("id");
-                    tile = new Block { Id = id };
+                    tile = new Tile(id);
                     break;
                 default:
                     throw new InvalidOperationException("Unknown tile type");

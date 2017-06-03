@@ -72,9 +72,10 @@ namespace Platform
             //blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.ssgt").Sprites);
             blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.stonefence").Sprites);
             blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.blocks").Sprites);
-            blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 8 });
-            blockStore.Blocks[MaterialType.Water].AddRange(new[] { 74 });
-            blockStore.Blocks[MaterialType.Grass].AddRange(new[] { 43, 44 });
+
+            //blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 8 });
+            //blockStore.Blocks[MaterialType.Water].AddRange(new[] { 74 });
+            //blockStore.Blocks[MaterialType.Grass].AddRange(new[] { 43, 44 });
             using (var serializer = new MgiJsonSerializer("BlockStore32x32.json", SerializerMode.Write))
             {
                 serializer.Context.Write("blockstore", blockStore, PlatformSerialize.Write);
@@ -86,7 +87,8 @@ namespace Platform
         {
             var blockStore = new BlockStore(16);
             blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt").Sprites);
-            blockStore.Blocks[MaterialType.Dirt].Add(101);
+            blockStore.SetMaterial(MaterialType.Water, 313, 314, 318, 319, 326, 327, 328, 329, 336, 337, 338, 339, 345, 346, 347, 348, 349);
+            blockStore.Materials[MaterialType.Dirt].Add(101);
             using (var serializer = new MgiJsonSerializer("BlockStore16x16.json", SerializerMode.Write))
             {
                 serializer.Context.Write("blockstore", blockStore, PlatformSerialize.Write);

@@ -156,16 +156,16 @@ namespace Platform
         private static void SaveTile(BinaryWriter writer, ITile tile)
         {
             var asMaterial = tile as Material;
-            var asBlock = tile as Block;
+            var asTile = tile as Tile;
             if (asMaterial != null)
             {
                 writer.Write((byte)TagTileMaterial);
                 writer.Write((byte)asMaterial.Type);
             }
-            else if (asBlock != null)
+            else if (asTile != null)
             {
                 writer.Write((byte)TagTileBlock);
-                writer.Write((Int32)asBlock.Id);
+                writer.Write((Int32)asTile.Id);
             }
             else
             {
@@ -224,10 +224,11 @@ namespace Platform
                     return null;
                 case TagTileMaterial:
                     var type = reader.ReadByte();
-                    return new Material { Type = (MaterialType)type };
+                    if (type == 0) type = 1;
+                    return new Material((MaterialType)type);
                 case TagTileBlock:
                     var id = reader.ReadInt32();
-                    return new Block { Id = id };
+                    return new Tile(id);
                 default:
                     throw new InvalidOperationException($"Unknown tile type: {tag}");
             }

@@ -82,7 +82,7 @@ namespace Platform
                     var value = select.Get((double)x / (this.map.Width / 2), (double)y / (this.map.Height / 2));
                     if (value > 0.5)
                     {
-                        this.map[y, x].Block = new Material { Type = MaterialType.Dirt };
+                        this.map[y, x].Block = new Material(MaterialType.Dirt);
                     }
                 }
             }

@@ -34,7 +34,7 @@ namespace Platform.Editor
             var maxY = this.tiles.Any() ? this.tiles.Keys.Max(p => p.Y) : 0;
             foreach (var block in blocks)
             {
-                this[x, maxY + 1] = new Block { Id = block };
+                this[x, maxY + 1] = new Tile(block);
                 x++;
             }
         }

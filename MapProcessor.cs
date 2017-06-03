@@ -77,7 +77,7 @@ namespace Platform
                 var cell = map[y, x];
                 var material = cell.Block as Material;
                 if (material != null && material.Type == MaterialType.Dirt) return true;
-                var tile = cell.Block as Block;
+                var tile = cell.Block as Tile;
                 if (tile != null && DirtTypes.Contains(tile.Id)) return true;
                 return false;
             });
@@ -94,52 +94,52 @@ namespace Platform
                         if (dirt.Match(null, false, null, true, null, true, null, true))
                         {
                             // case #1
-                            block = new Block { Id = random.Choice(50, 55) };
+                            block = new Tile(random.Choice(50, 55));
                         }
                         else if (dirt.Match(null, false, null, false, null, true, null, true))
                         {
                             // case #2
-                            block = new Block { Id = random.Choice(50, 55) };
+                            block = new Tile(random.Choice(50, 55));
                         }
                         else if (dirt.Match(null, false, null, null, null, true, null, false))
                         {
                             // case #3
-                            block = new Block { Id = 60 };
+                            block = new Tile(60);
                         }
                         else if (dirt.Match(null, true, null, true, null, true, null, false))
                         {
                             // case #4
-                            block = new Block { Id = random.Choice(54, 59) };
+                            block = new Tile(random.Choice(54, 59));
                         }
                         else if (dirt.Match(false, true, null, true, null, true, null, true))
                         {
                             // case #5
-                            block = new Block { Id = 56 };
+                            block = new Tile(56);
                         }
                         else if (dirt.Match(null, true, null, true, null, false, null, false))
                         {
                             // case #6
-                            block = new Block { Id = 69 };
+                            block = new Tile(69);
                         }
                         else if (dirt.Match(null, false, null, null, null, false, null, false))
                         {
                             // case #7
-                            block = new Block { Id = 70 };
+                            block = new Tile(70);
                         }
                         else if (dirt.Match(null, false, null, null, null, false, null, true))
                         {
                             // case #8
-                            block = new Block { Id = 65 };
+                            block = new Tile(65);
                         }
                         else if (dirt.Match(null, false, null, null, null, true, false, true))
                         {
                             // case #9
-                            block = new Block { Id = 51 };
+                            block = new Tile(51);
                         }
                         else if (dirt.Match(null, true, null, null, null, false, null, true))
                         {
                             // case #10
-                            block = new Block { Id = 64 };
+                            block = new Tile(64);
                         }
                         cell.Block = block;
 
@@ -149,13 +149,13 @@ namespace Platform
                             var above = map[y - 1, x];
                             // add grass etc.
                             var grass = random.Choice(43, 44);
-                            above.Foreground.Add(new Block { Id = grass });
+                            above.Foreground.Add(new Tile(grass));
                             if (grass == 44)
                             {
                                 // we can optionally add flowers
                                 if (random.Next(5) == 0)
                                 {
-                                    above.Foreground.Add(new Block { Id = random.Choice(32, 39, 46) });
+                                    above.Foreground.Add(new Tile(random.Choice(32, 39, 46)));
                                 }
                             }
                         }
@@ -197,51 +197,51 @@ namespace Platform
                         var block = cell.Block;
                         if (dirt.Match(null, false, null, true, null, true, null, false))
                         {
-                            block = new Block { Id = 0 };
+                            block = new Tile(0);
                         }
                         else if (dirt.Match(null, false, null, false, null, true, null, true))
                         {
-                            block = new Block { Id = 14 };
+                            block = new Tile(14);
                         }
                         else if (dirt.Match(null, false, null, true, null, true, null, true))
                         {
-                            block = new Block { Id = 7 };
+                            block = new Tile(7);
                         }
                         else if (dirt.Match(null, true, null, true, null, true, null, false))
                         {
-                            block = new Block { Id = 1 };
+                            block = new Tile(1);
                         }
                         else if (dirt.Match(null, true, null, true, null, false, null, false))
                         {
-                            block = new Block { Id = 2 };
+                            block = new Tile(2);
                         }
                         else if (dirt.Match(null, true, null, false, null, false, null, true))
                         {
-                            block = new Block { Id = 16 };
+                            block = new Tile(16);
                         }
                         else if (dirt.Match(null, true, null, true, null, false, null, true))
                         {
-                            block = new Block { Id = 9 };
+                            block = new Tile(9);
                         }
                         else if (dirt.Match(null, true, null, false, null, true, null, true))
                         {
-                            block = new Block { Id = 15 };
+                            block = new Tile(15);
                         }
                         else if (dirt.Match(null, false, null, false, null, false, null, false))
                         {
-                            block = new Block { Id = 42 };
+                            block = new Tile(42);
                         }
                         else if (dirt.Match(null, false, null, true, null, false, null, false))
                         {
-                            block = new Block { Id = 21 };
+                            block = new Tile(21);
                         }
                         else if (dirt.Match(null, false, null, false, null, false, null, true))
                         {
-                            block = new Block { Id = 35 };
+                            block = new Tile(35);
                         }
                         else if (dirt.Match(null, false, null, true, null, false, null, true))
                         {
-                            block = new Block { Id = 28 };
+                            block = new Tile(28);
                         }
                         cell.Block = block;
 
@@ -251,18 +251,18 @@ namespace Platform
                             var above = map[y - 1, x];
                             // add grass etc.
                             var grass = random.Choice(43, 44);
-                            above.Foreground.Add(new Block { Id = grass });
+                            above.Foreground.Add(new Tile(grass));
                             if (random.Next(10) == 0 && grass == 43)
                             {
                                 // randomly add background grass
-                                above.Background.Add(new Block { Id = 44 });
+                                above.Background.Add(new Tile(44));
                             }
                             if (grass == 44)
                             {
                                 // we can optionally add flowers
                                 if (random.Next(5) == 0)
                                 {
-                                    above.Foreground.Add(new Block { Id = random.Choice(32, 39, 46) });
+                                    above.Foreground.Add(new Tile(random.Choice(32, 39, 46)));
                                 }
                             }
                         }
@@ -294,51 +294,51 @@ namespace Platform
                         var block = cell.Block;
                         if (dirt.Match(null, false, null, true, null, true, null, false))
                         {
-                            block = new Block { Id = 80 };
+                            block = new Tile(80);
                         }
                         else if (dirt.Match(null, false, null, false, null, true, null, true))
                         {
-                            block = new Block { Id = 84 };
+                            block = new Tile(84);
                         }
                         else if (dirt.Match(null, false, null, true, null, true, null, true))
                         {
-                            block = new Block { Id = 81 };
+                            block = new Tile(81);
                         }
                         else if (dirt.Match(null, true, null, true, null, true, null, false))
                         {
-                            block = new Block { Id = 90 };
+                            block = new Tile(90);
                         }
                         else if (dirt.Match(null, true, null, true, null, false, null, false))
                         {
-                            block = new Block { Id = 110 };
+                            block = new Tile(110);
                         }
                         else if (dirt.Match(null, true, null, false, null, false, null, true))
                         {
-                            block = new Block { Id = 114 };
+                            block = new Tile(114);
                         }
                         else if (dirt.Match(null, true, null, true, null, false, null, true))
                         {
-                            block = new Block { Id = 111 };
+                            block = new Tile(111);
                         }
                         else if (dirt.Match(null, true, null, false, null, true, null, true))
                         {
-                            block = new Block { Id = 94 };
+                            block = new Tile(94);
                         }
                         else if (dirt.Match(null, false, null, false, null, false, null, false))
                         {
-                            block = new Block { Id = 81 };
+                            block = new Tile(81);
                         }
                         else if (dirt.Match(null, false, null, true, null, false, null, false))
                         {
-                            block = new Block { Id = 80 };
+                            block = new Tile(80);
                         }
                         else if (dirt.Match(null, false, null, false, null, false, null, true))
                         {
-                            block = new Block { Id = 84 };
+                            block = new Tile(84);
                         }
                         else if (dirt.Match(null, false, null, true, null, false, null, true))
                         {
-                            block = new Block { Id = 81 };
+                            block = new Tile(81);
                         }
                         cell.Block = block;
 

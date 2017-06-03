@@ -1,15 +1,18 @@
 ﻿using GameEngine.Templates;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using System;
 using System.Linq;
 
 namespace Platform
 {
+    [Flags]
     public enum MaterialType : int
     {
-        Dirt,
-        Water,
-        Grass,
+        None = 0,
+        Dirt = 1,
+        Water = 2,
+        Grass = 4,
     }
 
     public interface ITile
@@ -25,9 +28,14 @@ namespace Platform
     {
         public MaterialType Type;
 
+        public Material(MaterialType type)
+        {
+            this.Type = type;
+        }
+
         private ISpriteTemplate GetSprite(BlockStore store)
         {
-            var ids = store.Blocks[this.Type];
+            var ids = store.Materials[this.Type];
             if (!ids.Any())
             {
                 return null;
@@ -43,7 +51,7 @@ namespace Platform
 
         public ITile Clone()
         {
-            return new Material { Type = this.Type };
+            return new Material(this.Type);
         }
 
         public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth)
@@ -55,9 +63,14 @@ namespace Platform
         }
     }
 
-    public class Block : ITile
+    public class Tile : ITile
     {
         public int Id;
+
+        public Tile(int id)
+        {
+            this.Id = id;
+        }
 
         public string DebugString
         {
@@ -66,7 +79,7 @@ namespace Platform
 
         public ITile Clone()
         {
-            return new Block { Id = this.Id };
+            return new Tile(this.Id);
         }
 
         public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth)
@@ -75,6 +88,11 @@ namespace Platform
             var sprite = store.Tiles[this.Id];
             sprite.DrawSprite(sb, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
             return true;
+        }
+
+        public static implicit operator Tile(int id)
+        {
+            return new Tile(id);
         }
     }
 }

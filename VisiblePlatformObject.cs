@@ -16,14 +16,17 @@ namespace Platform
 {
     public class VisiblePlatformObject : PlatformObject
     {
-        public const float Gravity = 50f;
+        public const float Gravity = 2000f;
+        public const float WaterGravity = 1000f;
         public const float TerminalVelocity = 450f;
+        public const float TerminalWaterVelocity = 200f;
         public bool IsPhysicsEnabled = true;
         public bool IsGravityEnabled = true;
         private ISpriteTemplate sprite;
         private float frame;
         private Vector2 velocity;
         private bool onGround;
+        private bool inWater;
 
         public VisiblePlatformObject(PlatformContext context) : base(context)
         {
@@ -47,17 +50,34 @@ namespace Platform
 
         public bool OnGround { get { return this.onGround; } }
 
+        public bool InWater { get { return this.inWater; } }
+
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
             if (this.IsPhysicsEnabled)
             {
+                var materials = this.Context.GetMaterials(this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Top)));
+                materials |= this.Context.GetMaterials(this.Context.WorldToTile(new Vector2(this.bounds.Right, this.bounds.Bottom)));
+                if (!materials.HasFlag(MaterialType.Water) && this.InWater)
+                {
+                    this.velocity.Y *= 2;
+                }
+                this.inWater = materials.HasFlag(MaterialType.Water);
+
                 var elapsed = gameTime.GetElapsedSeconds();
                 if (!this.OnGround && this.IsGravityEnabled)
                 {
-                    // we only apply gravity if we weren't on the ground in the previous cycle
-                    this.velocity.Y = MathHelper.Min(this.velocity.Y + Gravity, TerminalVelocity);
+                    if (this.InWater)
+                    {
+                        this.velocity.Y = MathHelper.Min(this.velocity.Y + WaterGravity * elapsed, TerminalWaterVelocity);
+                    }
+                    else
+                    {
+                        // we only apply gravity if we weren't on the ground in the previous cycle
+                        this.velocity.Y = MathHelper.Min(this.velocity.Y + Gravity * elapsed, TerminalVelocity);
+                    }
                 }
                 var dv = this.velocity * elapsed;
 
@@ -172,7 +192,15 @@ namespace Platform
                 if (AbstractObject.DebugInfo)
                 {
                     renderer.World.DrawRectangle(this.bounds, Color.White);
-                    renderer.World.DrawString(Store.Instance.Fonts("Base", "debug"), $"{this.bounds}, {this.velocity}, {this.OnGround}", this.Position - new Vector2(0, 20), Color.White);
+
+                    var font = Store.Instance.Fonts("Base", "debug");
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"{this.bounds}");
+                    sb.AppendLine($"{this.velocity}");
+                    sb.AppendLine($"{this.OnGround}");
+                    var size = font.Font.MeasureString(sb.ToString());
+                    renderer.Screen.DrawString(font, sb.ToString(), this.Context.WorldToScreen(this.Position) - new Vector2(0, size.Y), Color.White);
+                    //renderer.World.DrawString(Store.Instance.Fonts("Base", "debug"), $"{this.bounds}, {this.velocity}, {this.OnGround}", this.Position - new Vector2(0, 20), Color.White);
                 }
             }
 
