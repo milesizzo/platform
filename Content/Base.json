@@ -156,23 +156,23 @@
         {
           "key": "WalkRight",
           "fps": 0,
-          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ]
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
         },
         {
           "key": "WalkLeft",
           "fps": 0,
-          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ],
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
           "effects": "FlipHorizontally"
         },
         {
           "key": "RunRight",
           "fps": 0,
-          "frames": [ 16, 17, 18, 19, 20, 21, 22, 23 ]
+          "frames": [ 16, 17, 18, 19, 20, 21 ]
         },
         {
           "key": "RunLeft",
           "fps": 0,
-          "frames": [ 16, 17, 18, 19, 20, 21, 22, 23 ],
+          "frames": [ 16, 17, 18, 19, 20, 21 ],
           "effects": "FlipHorizontally"
         },
         {
@@ -233,14 +233,14 @@
         },
         {
           "key": "IdleLeft",
-          "fps": 0,
-          "frames": [ 1 ],
+          "fps": 6,
+          "frames": [ 0, 0, 1, 1 ],
           "effects": "FlipHorizontally"
         },
         {
           "key": "IdleRight",
-          "fps": 0,
-          "frames": [ 1 ]
+          "fps": 6,
+          "frames": [ 0, 0, 1, 1 ]
         }
       ]
     },
@@ -257,23 +257,23 @@
         {
           "key": "WalkRight",
           "fps": 0,
-          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ]
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
         },
         {
           "key": "WalkLeft",
           "fps": 0,
-          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ],
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
           "effects": "FlipHorizontally"
         },
         {
           "key": "RunRight",
           "fps": 0,
-          "frames": [ 16, 17, 18, 19, 20, 21, 22, 23 ]
+          "frames": [ 16, 17, 18, 19, 20, 21 ]
         },
         {
           "key": "RunLeft",
           "fps": 0,
-          "frames": [ 16, 17, 18, 19, 20, 21, 22, 23 ],
+          "frames": [ 16, 17, 18, 19, 20, 21 ],
           "effects": "FlipHorizontally"
         },
         {
@@ -334,14 +334,14 @@
         },
         {
           "key": "IdleLeft",
-          "fps": 0,
-          "frames": [ 1 ],
+          "fps": 6,
+          "frames": [ 0, 0, 1, 1 ],
           "effects": "FlipHorizontally"
         },
         {
           "key": "IdleRight",
-          "fps": 0,
-          "frames": [ 1 ]
+          "fps": 6,
+          "frames": [ 0, 0, 1, 1 ]
         }
       ]
     },
@@ -358,23 +358,23 @@
         {
           "key": "WalkRight",
           "fps": 0,
-          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ]
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9 ]
         },
         {
           "key": "WalkLeft",
           "fps": 0,
-          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9, 0, 1 ],
+          "frames": [ 2, 3, 4, 5, 6, 7, 8, 9 ],
           "effects": "FlipHorizontally"
         },
         {
           "key": "RunRight",
           "fps": 0,
-          "frames": [ 16, 17, 18, 19, 20, 21, 22, 23 ]
+          "frames": [ 16, 17, 18, 19, 20, 21 ]
         },
         {
           "key": "RunLeft",
           "fps": 0,
-          "frames": [ 16, 17, 18, 19, 20, 21, 22, 23 ],
+          "frames": [ 16, 17, 18, 19, 20, 21 ],
           "effects": "FlipHorizontally"
         },
         {
@@ -435,14 +435,14 @@
         },
         {
           "key": "IdleLeft",
-          "fps": 0,
-          "frames": [ 1 ],
+          "fps": 6,
+          "frames": [ 0, 0, 1, 1 ],
           "effects": "FlipHorizontally"
         },
         {
           "key": "IdleRight",
-          "fps": 0,
-          "frames": [ 1 ]
+          "fps": 6,
+          "frames": [ 0, 0, 1, 1 ]
         }
       ]
     },
