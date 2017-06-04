@@ -14,7 +14,7 @@ namespace Platform.Editor
         {
             Background,
             Foreground,
-            Blocking
+            Blocking,
         }
 
         internal readonly Dictionary<Point, ITile> tiles = new Dictionary<Point, ITile>();

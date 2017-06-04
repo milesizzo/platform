@@ -50,33 +50,6 @@ namespace Platform
             get { return this[p.Y, p.X]; }
         }
 
-        public bool IsPassable(Point p)
-        {
-            return this.IsPassable(p.X, p.Y);
-        }
-
-        public bool IsPassable(int x, int y)
-        {
-            //return !this.BlockingTiles.Overlaps(this[y, x].Foreground);
-            if (x < 0 || y < 0 || x >= this.Width || y >= this.Height) return false;
-            return this[y, x].Block == null;
-        }
-
-        public bool IsPassable(Point first, Point second)
-        {
-            for (var y = first.Y; y <= second.Y; y++)
-            {
-                for (var x = first.X; x <= second.X; x++)
-                {
-                    if (!this.IsPassable(x, y))
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
         public void SaveToImage(GraphicsDevice graphics, string filename)
         {
             /*using (var bitmap = new System.Drawing.Bitmap(this.Width * 2, this.Height * 2))

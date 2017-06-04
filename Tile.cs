@@ -13,6 +13,8 @@ namespace Platform
         Dirt = 1,
         Water = 2,
         Grass = 4,
+        OneWay = 8,
+        Ladder = 16,
     }
 
     public interface ITile

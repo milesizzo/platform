@@ -199,6 +199,52 @@ namespace Platform
             return result;
         }
 
+        public bool IsOneWayPlatform(int x, int y)
+        {
+            return this.GetMaterials(new Point(x, y)).HasFlag(MaterialType.OneWay);
+        }
+
+        public bool IsOneWayPlatform(Point first, Point second)
+        {
+            for (var y = first.Y; y <= second.Y; y++)
+            {
+                for (var x = first.X; x <= second.X; x++)
+                {
+                    if (this.IsOneWayPlatform(x, y))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public bool IsPassable(Point p)
+        {
+            return this.IsPassable(p.X, p.Y);
+        }
+
+        public bool IsPassable(int x, int y)
+        {
+            if (x < 0 || y < 0 || x >= this.Map.Width || y >= this.Map.Height) return false;
+            return this.Map[y, x].Block == null;
+        }
+
+        public bool IsPassable(Point first, Point second)
+        {
+            for (var y = first.Y; y <= second.Y; y++)
+            {
+                for (var x = first.X; x <= second.X; x++)
+                {
+                    if (!this.IsPassable(x, y))
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
         public override void Update(GameTime gameTime)
         {
             if (this.Enabled)
