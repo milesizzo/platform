@@ -93,6 +93,11 @@
       }
     },
     {
+      "name": "white-16x16",
+      "type": "GameEngine.Templates.SingleSpriteTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
+      "texture": "white-16x16"
+    },
+    {
       "name": "player",
       "type": "GameEngine.Templates.NamedAnimatedSpriteSheetTemplate, GameEngine, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null",
       "texture": "Characters/player",

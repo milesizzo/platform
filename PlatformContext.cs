@@ -255,6 +255,10 @@ namespace Platform
                     }
                     // 0.02 is 'block'
                     this.BlockStore.DrawTile(renderer.World, pos, cell.Block, 0.02f, Color.White);
+                    if (AbstractObject.DebugInfo && cell.Block != null)
+                    {
+                        Store.Instance.Sprites<ISpriteTemplate>("Base", "white-16x16").DrawSprite(renderer.World, 0, pos, Color.Red, 0, Vector2.One, SpriteEffects.None, 0.019f);
+                    }
                     if (cell.Foreground.Count > 0)
                     {
                         // (0.02, 0.01] is foreground

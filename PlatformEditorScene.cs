@@ -18,6 +18,7 @@ using System.IO;
 using Platform.Editor;
 using CommonLibrary.Serializing;
 using Platform.Serializing;
+using GameEngine.GameObjects;
 
 namespace Platform
 {
@@ -59,6 +60,7 @@ namespace Platform
             this.Context.Map = BinTileMapSerializer.Load("editor.map");
 
             #region Stencils
+            this.stencils.Clear();
             var stencil = new TileStencil();
             stencil.AddRow(0, 500, 501, 502, 503, 504);
             stencil.AddRow(0, 510, 511, 512, 513, 514);
@@ -270,6 +272,7 @@ namespace Platform
             panel.Placement.RelativeY = 0.5f;
             panel.Origin = UIOrigin.Centre;
             this.palette = panel;
+            this.UI.Clear();
             this.UI.Add(panel);
             this.UI.Enabled = false;
 
@@ -304,6 +307,12 @@ namespace Platform
                 if (KeyboardHelper.KeyPressed(Keys.Escape))
                 {
                     this.UI.Enabled = true;
+                }
+
+                // debug mode
+                if (KeyboardHelper.KeyPressed(Keys.F12))
+                {
+                    AbstractObject.DebugInfo = !AbstractObject.DebugInfo;
                 }
 
                 // pick layer
