@@ -19,6 +19,8 @@ namespace Platform.Editor
 
         internal readonly Dictionary<Point, ITile> tiles = new Dictionary<Point, ITile>();
 
+        public Point Origin = Point.Zero;
+
         public ITile this[int x, int y]
         {
             set { this.tiles[new Point(x, y)] = value; }
@@ -39,13 +41,13 @@ namespace Platform.Editor
             }
         }
 
-        public void Draw(SpriteBatch sb, Vector2 pos, BlockStore blocks)
+        public void Draw(SpriteBatch sb, Vector2 pos, Vector2 scale, Color colour, BlockStore blocks)
         {
             foreach (var kvp in this.tiles)
             {
-                var p = kvp.Key;
+                var p = kvp.Key - this.Origin;
                 var tile = kvp.Value;
-                blocks.DrawTile(sb, pos + new Vector2(p.X * blocks.TileSize, p.Y * blocks.TileSize), tile, 0f, Color.White);
+                blocks.DrawTile(sb, pos + new Vector2(p.X * blocks.TileSize * scale.X, p.Y * blocks.TileSize * scale.Y), tile, 0f, colour, scale);
             }
         }
 
@@ -53,7 +55,7 @@ namespace Platform.Editor
         {
             foreach (var kvp in this.tiles)
             {
-                var p = kvp.Key;
+                var p = kvp.Key - this.Origin;
                 var tile = kvp.Value.Clone();
                 var location = p + pos;
                 if (location.X < 0 || location.X >= map.Width || location.Y < 0 || location.Y >= map.Height)
@@ -74,6 +76,12 @@ namespace Platform.Editor
                         break;
                 }
             }
+        }
+
+        public ISpriteTemplate ToSprite(BlockStore blocks)
+        {
+            var sprite = new TileStencilSprite(this, blocks);
+            return sprite;
         }
 
         // NOTE: this should only be used in serialization!
@@ -106,6 +114,7 @@ namespace Platform.Editor
     {
         private readonly TileStencil stencil;
         private readonly BlockStore blocks;
+        private Vector2 origin = Vector2.Zero;
 
         public TileStencilSprite(TileStencil stencil, BlockStore blocks)
         {
@@ -123,7 +132,7 @@ namespace Platform.Editor
         {
             get
             {
-                return this.stencil.tiles.Keys.Max(p => p.Y) * this.blocks.TileSize;
+                return (this.stencil.tiles.Keys.Max(p => p.Y) + 1) * this.blocks.TileSize;
             }
         }
 
@@ -139,8 +148,8 @@ namespace Platform.Editor
 
         public Vector2 Origin
         {
-            get { return Vector2.Zero; }
-            set { throw new NotImplementedException(); }
+            get { return this.origin; }
+            set { this.origin = value; }
         }
 
         public Shape Shape
@@ -159,13 +168,24 @@ namespace Platform.Editor
         {
             get
             {
-                return this.stencil.tiles.Keys.Max(p => p.X) * this.blocks.TileSize;
+                return (this.stencil.tiles.Keys.Max(p => p.X) + 1) * this.blocks.TileSize;
             }
         }
 
         public void DrawSprite(SpriteBatch sb, int frame, Vector2 position, Color colour, float rotation, Vector2 scale, SpriteEffects effects, float depth)
         {
-            this.stencil.Draw(sb, position, this.blocks);
+            foreach (var kvp in this.stencil.tiles)
+            {
+                var p = kvp.Key;
+                var tile = kvp.Value;
+                this.blocks.DrawTile(sb,
+                    position + new Vector2(p.X * this.blocks.TileSize * scale.X, p.Y * this.blocks.TileSize * scale.Y) - this.origin,
+                    tile,
+                    0f,
+                    colour,
+                    scale);
+            }
+            //this.stencil.Draw(sb, position - this.origin, scale, colour, this.blocks);
         }
     }
 }

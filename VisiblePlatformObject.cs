@@ -88,9 +88,11 @@ namespace Platform
                 {
                     // test tile to the right
                     var right = (float)Math.Ceiling(this.bounds.Right - 1 + dv.X);
-                    var xTileTopRight = this.Context.WorldToTile(new Vector2(right, (float)Math.Floor(this.bounds.Top)));
-                    var xTileBottomRight = this.Context.WorldToTile(new Vector2(right, (float)Math.Ceiling(this.bounds.Bottom - 1)));
-                    if (!this.Context.Map.IsPassable(xTileTopRight, xTileBottomRight))
+                    var xTopRight = new Vector2(right, (float)Math.Floor(this.bounds.Top));
+                    var xBottomRight = new Vector2(right, (float)Math.Ceiling(this.bounds.Bottom - 1));
+                    var xTileTopRight = this.Context.WorldToTile(xTopRight);
+                    var xTileBottomRight = this.Context.WorldToTile(xBottomRight);
+                    if (!this.Context.IsPassable(xTileTopRight, xTileBottomRight))
                     {
                         this.velocity.X = 0;
                         this.bounds.X = this.Context.TileToWorld(xTileTopRight).X - this.bounds.Width;
@@ -105,7 +107,7 @@ namespace Platform
                     var left = (float)Math.Floor(this.bounds.Left + dv.X);
                     var xTileTopLeft = this.Context.WorldToTile(new Vector2(left, (float)Math.Floor(this.bounds.Top)));
                     var xTileBottomLeft = this.Context.WorldToTile(new Vector2(left, (float)Math.Ceiling(this.bounds.Bottom - 1)));
-                    if (!this.Context.Map.IsPassable(xTileTopLeft, xTileBottomLeft))
+                    if (!this.Context.IsPassable(xTileTopLeft, xTileBottomLeft))
                     {
                         this.velocity.X = 0;
                         this.bounds.X = this.Context.TileToWorld(xTileTopLeft.X + 1, xTileTopLeft.Y).X;
@@ -123,7 +125,12 @@ namespace Platform
                     var bottom = (float)Math.Ceiling(this.bounds.Bottom - 1 + dv.Y);
                     var yTileBottomLeft = this.Context.WorldToTile(new Vector2((float)Math.Floor(this.bounds.Left), bottom));
                     var yTileBottomRight = this.Context.WorldToTile(new Vector2((float)Math.Ceiling(this.bounds.Right - 1), bottom));
-                    if (!this.Context.Map.IsPassable(yTileBottomLeft, yTileBottomRight))
+                    if (!this.Context.IsPassable(yTileBottomLeft, yTileBottomRight))
+                    {
+                        this.velocity.Y = 0;
+                        this.bounds.Y = this.Context.TileToWorld(yTileBottomLeft).Y - this.bounds.Height;
+                    }
+                    else if (this.Context.IsOneWayPlatform(yTileBottomLeft, yTileBottomRight))
                     {
                         this.velocity.Y = 0;
                         this.bounds.Y = this.Context.TileToWorld(yTileBottomLeft).Y - this.bounds.Height;
@@ -139,7 +146,7 @@ namespace Platform
                     var top = (float)Math.Floor(this.bounds.Top + dv.Y);
                     var yTileTopLeft = this.Context.WorldToTile(new Vector2((float)Math.Floor(this.bounds.Left), top));
                     var yTileTopRight = this.Context.WorldToTile(new Vector2((float)Math.Ceiling(this.bounds.Right - 1), top));
-                    if (!this.Context.Map.IsPassable(yTileTopLeft, yTileTopRight))
+                    if (!this.Context.IsPassable(yTileTopLeft, yTileTopRight))
                     {
                         this.velocity.Y = 0;// -this.velocity.Y;
                         this.bounds.Y = this.Context.TileToWorld(yTileTopLeft.X, yTileTopLeft.Y + 1).Y;
@@ -153,7 +160,7 @@ namespace Platform
 
             var tileBottomLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Bottom));
             var tileBottomRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1, this.bounds.Bottom));
-            if (!this.Context.Map.IsPassable(tileBottomLeft, tileBottomRight))
+            if (!this.Context.IsPassable(tileBottomLeft, tileBottomRight) || this.Context.IsOneWayPlatform(tileBottomLeft, tileBottomRight))
             {
                 this.onGround = true;
             }

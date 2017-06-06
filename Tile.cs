@@ -19,7 +19,7 @@ namespace Platform
 
     public interface ITile
     {
-        bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth);
+        bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth, Vector2? scale = null);
 
         string DebugString { get; }
 
@@ -56,11 +56,11 @@ namespace Platform
             return new Material(this.Type);
         }
 
-        public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth)
+        public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth, Vector2? scale = null)
         {
             var sprite = this.GetSprite(store);
             if (sprite == null) return false;
-            sprite.DrawSprite(sb, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
+            sprite.DrawSprite(sb, 0, pos, colour, 0, scale ?? Vector2.One, SpriteEffects.None, depth);
             return true;
         }
     }
@@ -84,11 +84,11 @@ namespace Platform
             return new Tile(this.Id);
         }
 
-        public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth)
+        public bool Draw(BlockStore store, SpriteBatch sb, Vector2 pos, Color colour, float depth, Vector2? scale = null)
         {
             if (this.Id >= store.Tiles.Count) return false;
             var sprite = store.Tiles[this.Id];
-            sprite.DrawSprite(sb, 0, pos, colour, 0, Vector2.One, SpriteEffects.None, depth);
+            sprite.DrawSprite(sb, 0, pos, colour, 0, scale ?? Vector2.One, SpriteEffects.None, depth);
             return true;
         }
 

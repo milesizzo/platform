@@ -23,12 +23,12 @@ namespace Platform
             this.TileSize = tileSize;
         }
 
-        public void DrawTile(SpriteBatch sb, Vector2 pos, ITile tile, float depth, Color colour)
+        public void DrawTile(SpriteBatch sb, Vector2 pos, ITile tile, float depth, Color colour, Vector2? scale = null)
         {
             if (tile == null) return;
-            if (!tile.Draw(this, sb, pos, colour, depth))
+            if (!tile.Draw(this, sb, pos, colour, depth, scale))
             {
-                sb.DrawRectangle(pos, new Size2(this.TileSize - 1, this.TileSize - 1), Color.Red);
+                sb.DrawRectangle(pos, new Size2(this.TileSize, this.TileSize), Color.Red);
                 var font = Store.Instance.Fonts("Base", "debug.small");
                 var s = $"{tile.DebugString}";
                 font.DrawString(sb, pos + new Vector2(this.TileSize / 2) - font.Font.MeasureString(s) / 2, s, Color.Yellow);

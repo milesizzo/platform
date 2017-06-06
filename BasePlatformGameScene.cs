@@ -5,6 +5,7 @@ using GameEngine.Content;
 using GameEngine.Graphics;
 using GameEngine.Scenes;
 using GameEngine.Templates;
+using GeonBit.UI;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Platform.Serializing;
@@ -18,6 +19,7 @@ namespace Platform
 {
     public abstract class BasePlatformGameScene : GameScene<PlatformContext>
     {
+        private SpriteBatch ui;
         private RenderTarget2D lightsTarget;
         private RenderTarget2D mainTarget;
         private Effect effect1;
@@ -31,6 +33,8 @@ namespace Platform
         public override void SetUp()
         {
             base.SetUp();
+
+            this.ui = new SpriteBatch(this.Graphics);
 
             var pp = this.Graphics.PresentationParameters;
             this.lightsTarget = new RenderTarget2D(this.Graphics, pp.BackBufferWidth, pp.BackBufferHeight);
@@ -87,7 +91,10 @@ namespace Platform
         {
             var blockStore = new BlockStore(16);
             blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt").Sprites);
+            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt.gothic").Sprites);
             blockStore.SetMaterial(MaterialType.Water, 313, 314, 318, 319, 326, 327, 328, 329, 336, 337, 338, 339, 345, 346, 347, 348, 349);
+            blockStore.SetMaterial(MaterialType.OneWay, 155, 156, 157, 158, 159, 165, 166, 167, 168, 169, 186);
+            blockStore.SetMaterial(MaterialType.Ladder, 378, 388, 398, 408, 418, 428);
             blockStore.Materials[MaterialType.Dirt].Add(101);
             using (var serializer = new MgiJsonSerializer("BlockStore16x16.json", SerializerMode.Write))
             {
@@ -98,6 +105,8 @@ namespace Platform
 
         public override void PreDraw(Renderer renderer)
         {
+            UserInterface.Draw(this.ui);
+
             // draw the lights
             this.Graphics.SetRenderTarget(this.lightsTarget);
             this.Graphics.Clear(this.Context.AmbientLight);
@@ -116,6 +125,12 @@ namespace Platform
             this.Graphics.Clear(this.Context.AmbientBackground);
             renderer.Screen.Begin(blendState: BlendState.AlphaBlend, samplerState: SamplerState.PointClamp);
             renderer.World.Begin(sortMode: SpriteSortMode.BackToFront, blendState: BlendState.NonPremultiplied, transformMatrix: this.Camera.GetViewMatrix(), samplerState: this.Camera.SamplerState);
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            UserInterface.Update(gameTime);
+            base.Update(gameTime);
         }
 
         public override void PostDraw(Renderer renderer)
@@ -137,6 +152,8 @@ namespace Platform
 
             // finally, render the screen layer
             renderer.Screen.End();
+
+            UserInterface.DrawMainRenderTarget(this.ui);
         }
     }
 }
