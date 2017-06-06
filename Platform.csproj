@@ -43,6 +43,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <PlatformTarget>x64</PlatformTarget>
     <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>STATICDATA</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <PlatformTarget>x64</PlatformTarget>
@@ -68,6 +69,8 @@
     <Compile Include="AccidentalNoise\Util\SMappingRanges.cs" />
     <Compile Include="BasePlatformGameScene.cs" />
     <Compile Include="BlockStore.cs" />
+    <Compile Include="Editor\StencilPicker.cs" />
+    <Compile Include="Editor\TilePicker.cs" />
     <Compile Include="Editor\TileStencil.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MapProcessor.cs" />
@@ -83,6 +86,7 @@
     <Compile Include="Serializing\Serialize.Tile.cs" />
     <Compile Include="Serializing\Serialize.TileStencil.cs" />
     <Compile Include="SpriteImage.cs" />
+    <Compile Include="StaticData.cs" />
     <Compile Include="TerrainGenerator.cs" />
     <Compile Include="TileMap.cs" />
     <Compile Include="Tile.cs" />

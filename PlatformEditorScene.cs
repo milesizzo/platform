@@ -51,300 +51,15 @@ namespace Platform
             return context;
         }
 
-        private void CreateStencils()
+        private void SetUpUI()
         {
-            this.stencils.Clear();
-            var stencil = new TileStencil();
-            stencil.AddRow(0, 500, 501, 502, 503, 504);
-            stencil.AddRow(0, 510, 511, 512, 513, 514);
-            stencil.AddRow(0, 520, 521, 522, 523, 524);
-            stencil.AddRow(1,      531, 532);
-            stencil.AddRow(1,      541, 542, 543);
-            this.stencils.Add(stencil);
-
-            stencil = new TileStencil();
-            stencil.AddRow(2,           497, 498);
-            stencil.AddRow(1,      506, 507, 508, 509);
-            stencil.AddRow(0, 515, 516, 517, 518, 519);
-            stencil.AddRow(0, 525, 526, 527, 528, 529);
-            stencil.AddRow(2,           537, 538);
-            stencil.AddRow(2,           547, 548);
-            stencil.Origin = new Point(2, 5);
-            this.stencils.Add(stencil);
-
-            stencil = new TileStencil();
-            stencil.AddRow(0, 451, 452, 453);
-            stencil.AddRow(0, 461, 462, 463);
-            stencil.AddRow(0, 471, 472);
-            stencil.AddRow(0, 481, 482, 483);
-            this.stencils.Add(stencil);
-
-            stencil = new TileStencil();
-            stencil.AddRow(0, 456, 457);
-            stencil.AddRow(0, 466, 467);
-            stencil.AddRow(0, 476, 477);
-            stencil.AddRow(0, 486, 487, 488);
-            this.stencils.Add(stencil);
-
-            // square door with window
-            stencil = new TileStencil();
-            stencil.AddRow(0, 220, 221);
-            stencil.AddRow(0, 232, 233);
-            this.stencils.Add(stencil);
-
-            // square door, no window
-            stencil = new TileStencil();
-            stencil.AddRow(0, 222, 223);
-            stencil.AddRow(0, 232, 233);
-            this.stencils.Add(stencil);
-
-            // square door with hinges
-            stencil = new TileStencil();
-            stencil.AddRow(0, 242, 243);
-            stencil.AddRow(0, 252, 253);
-            this.stencils.Add(stencil);
-
-            // square door - open
-            stencil = new TileStencil();
-            stencil.AddRow(0, 420, 421);
-            stencil.AddRow(0, 430, 431);
-            this.stencils.Add(stencil);
-
-            // round door, window
-            stencil = new TileStencil();
-            stencil.AddRow(0, 230, 231);
-            stencil.AddRow(0, 234, 235);
-            this.stencils.Add(stencil);
-
-            // round door, no window
-            stencil = new TileStencil();
-            stencil.AddRow(0, 224, 225);
-            stencil.AddRow(0, 234, 235);
-            this.stencils.Add(stencil);
-
-            // round door with hinges
-            stencil = new TileStencil();
-            stencil.AddRow(0, 244, 245);
-            stencil.AddRow(0, 254, 255);
-            this.stencils.Add(stencil);
-
-            // round door - open
-            stencil = new TileStencil();
-            stencil.AddRow(0, 433, 434);
-            stencil.AddRow(0, 443, 444);
-            this.stencils.Add(stencil);
-
-            // stone frame door
-            stencil = new TileStencil();
-            stencil.AddRow(0, 008, 009);
-            stencil.AddRow(0, 018, 019);
-            this.stencils.Add(stencil);
-
-            // stone frame bars?
-            stencil = new TileStencil();
-            stencil.AddRow(0, 015, 016);
-            stencil.AddRow(0, 025, 026);
-            this.stencils.Add(stencil);
-
-            // stone frame door - open
-            stencil = new TileStencil();
-            stencil.AddRow(0, 400, 401);
-            stencil.AddRow(0, 410, 411);
-            this.stencils.Add(stencil);
-
-            // green bush (near doors on tilesheet)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 240, 241);
-            stencil.AddRow(0, 250, 251);
-            this.stencils.Add(stencil);
-
-            // rock
-            stencil = new TileStencil();
-            stencil.AddRow(0, 70, 71);
-            this.stencils.Add(stencil);
-
-            // rock
-            stencil = new TileStencil();
-            stencil.AddRow(0, 75, 76);
-            this.stencils.Add(stencil);
-
-            // fence 1 (left)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 95);
-            stencil.AddRow(0, 105);
-            this.stencils.Add(stencil);
-
-            // fence 1 (middle)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 96);
-            stencil.AddRow(0, 106);
-            this.stencils.Add(stencil);
-
-            // fence 1 (right)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 97);
-            stencil.AddRow(0, 107);
-            this.stencils.Add(stencil);
-
-            // fence 2 (left)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 115);
-            stencil.AddRow(0, 125);
-            this.stencils.Add(stencil);
-
-            // fence 2 (middle)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 116);
-            stencil.AddRow(0, 126);
-            this.stencils.Add(stencil);
-
-            // fence 2 (right)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 117);
-            stencil.AddRow(0, 127);
-            this.stencils.Add(stencil);
-
-            // fence 3 (stone - left)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 310);
-            stencil.AddRow(0, 320);
-            this.stencils.Add(stencil);
-
-            // fence 3 (stone - middle)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 315);
-            stencil.AddRow(0, 325);
-            this.stencils.Add(stencil);
-
-            // fence 3 (stone - right)
-            stencil = new TileStencil();
-            stencil.AddRow(0, 312);
-            stencil.AddRow(0, 322);
-            this.stencils.Add(stencil);
-
-            // chimney 1 - left
-            stencil = new TileStencil();
-            stencil.AddRow(0, 354);
-            stencil.AddRow(0, 364);
-            this.stencils.Add(stencil);
-
-            // chimney 1 - right
-            stencil = new TileStencil();
-            stencil.AddRow(0, 355);
-            stencil.AddRow(0, 365);
-            this.stencils.Add(stencil);
-
-            // chimney 2 - left
-            stencil = new TileStencil();
-            stencil.AddRow(0, 356);
-            stencil.AddRow(0, 366);
-            this.stencils.Add(stencil);
-
-            // chimney 2 - right
-            stencil = new TileStencil();
-            stencil.AddRow(0, 357);
-            stencil.AddRow(0, 367);
-            this.stencils.Add(stencil);
-
-            // chimney 3 - left
-            stencil = new TileStencil();
-            stencil.AddRow(0, 358);
-            stencil.AddRow(0, 368);
-            this.stencils.Add(stencil);
-
-            // chimney 3 - right
-            stencil = new TileStencil();
-            stencil.AddRow(0, 359);
-            stencil.AddRow(0, 369);
-            this.stencils.Add(stencil);
-
-            // large crate
-            stencil = new TileStencil();
-            stencil.AddRow(0, 351);
-            stencil.AddRow(0, 361);
-            this.stencils.Add(stencil);
-
-            // NOTE: gothic tiles start at 620
-            // tombstone 1
-            stencil = new TileStencil();
-            stencil.AddRow(0, 624);
-            stencil.AddRow(0, 634);
-            this.stencils.Add(stencil);
-
-            // tombstone 2
-            stencil = new TileStencil();
-            stencil.AddRow(0, 625);
-            stencil.AddRow(0, 635);
-            this.stencils.Add(stencil);
-
-            // tombstone 3
-            stencil = new TileStencil();
-            stencil.AddRow(0, 626);
-            stencil.AddRow(0, 636);
-            this.stencils.Add(stencil);
-
-            // bookshelf 1
-            stencil = new TileStencil();
-            stencil.AddRow(0, 990, 991);
-            stencil.AddRow(0, 1000, 1001);
-            this.stencils.Add(stencil);
-
-            // bookshelf 2
-            stencil = new TileStencil();
-            stencil.AddRow(0, 994, 995);
-            stencil.AddRow(0, 1004, 1005);
-            this.stencils.Add(stencil);
-
-            // bookshelf 3
-            stencil = new TileStencil();
-            stencil.AddRow(0, 996, 997);
-            stencil.AddRow(0, 1006, 1007);
-            this.stencils.Add(stencil);
-
-            // tree 5
-            stencil = new TileStencil();
-            stencil.AddRow(1,       1181, 1182, 1183);
-            stencil.AddRow(1,       1191, 1192, 1193);
-            stencil.AddRow(0, 1200, 1201, 1202, 1203, 1204);
-            stencil.AddRow(1,       1211, 1212, 1213);
-            stencil.AddRow(1,       1221, 1222, 1223, 1224);
-            this.stencils.Add(stencil);
-
-            // tree 6
-            stencil = new TileStencil();
-            stencil.AddRow(2,             1187, 1188);
-            stencil.AddRow(1,       1196, 1197, 1198, 1199);
-            stencil.AddRow(1,       1206, 1207, 1208, 1209);
-            stencil.AddRow(2,             1217, 1218);
-            stencil.AddRow(0, 1225, 1226, 1227, 1228);
-            this.stencils.Add(stencil);
-
-            using (var serializer = new MgiJsonSerializer("Stencils16x16.json", SerializerMode.Write))
-            {
-                serializer.Context.WriteList("stencils", this.stencils, PlatformSerialize.Write);
-            }
-        }
-
-        public override void SetUp()
-        {
-            base.SetUp();
-
-            var font = Store.Instance.Fonts("Base", "debug");
-            if (!File.Exists(DefaultMap))
-            {
-                File.Copy("Content\\Maps\\landscape.map", DefaultMap, true);
-            }
-            this.Context.Map = BinTileMapSerializer.Load(DefaultMap);
-
-            this.CreateStencils();
-
             if (this.menu != null)
             {
                 UserInterface.RemoveEntity(this.menu);
             }
             this.menu = new PanelTabs();
             this.menu.SetAnchor(Anchor.Center);
-            this.menu.Size = new Vector2(1400, 1100);
+            this.menu.Size = new Vector2(1400, 1000);
             this.menu.Visible = false;
 
             // file menu
@@ -388,60 +103,56 @@ namespace Platform
 
             // tiles menu
             var tilesMenu = (this.menu as PanelTabs).AddTab("Tiles", PanelSkin.Default);
-            tilesMenu.panel.PanelOverflowBehavior = PanelOverflowBehavior.VerticalScroll;
-            tilesMenu.panel.Scrollbar.Max = (uint)(this.menu.Size.Y * 4);
-
-            var tileIndex = 0;
-            foreach (var sprite in this.Context.BlockStore.Tiles)
+            var tilePicker = new TilePicker(this.Context.BlockStore);
+            tilePicker.OnTileClick += (e, tile) =>
             {
-                var tile = new Tile(tileIndex);
-
-                var img = new SpriteImage(sprite, new Vector2(sprite.Width * 2, sprite.Height * 2), anchor: Anchor.AutoInline);
-                img.SetStyleProperty("FillColor", new StyleProperty(Color.Red), EntityState.MouseHover);
-                img.Padding = Vector2.Zero;
-                img.Scale = 1f;
-                img.OnClick += (e) =>
-                {
-                    this.curr = new TileStencil();
-                    this.curr[0, 0] = tile;
-                };
-                tilesMenu.panel.AddChild(img);
-                tileIndex++;
-            }
+                this.curr = new TileStencil();
+                this.curr[0, 0] = tile;
+            };
+            tilePicker.Scrollbar.Max = (uint)(this.menu.Size.Y * 4); // we have to guess at the maximum height...
+            tilePicker.Scrollbar.StepsCount = (uint)this.Context.BlockStore.TileSize;
+            tilesMenu.panel.AddChild(tilePicker);
 
             // stencil menu
             var stencilMenu = (this.menu as PanelTabs).AddTab("Stencils", PanelSkin.Default);
-            stencilMenu.panel.PanelOverflowBehavior = PanelOverflowBehavior.VerticalScroll;
-            stencilMenu.panel.Scrollbar.Max = (uint)(this.menu.Size.Y * 4); // we have to guess at the maximum height...
-
-            var stencilSprites = this.stencils.Select(s => s.ToSprite(this.Context.BlockStore)).ToList();
-            var max = Vector2.Zero;
-            max.X = stencilSprites.Max(s => s.Width);
-            max.Y = stencilSprites.Max(s => s.Height);
-            foreach (var stencil in this.stencils)
+            var stencilPicker = new StencilPicker(this.Context.BlockStore, this.stencils);
+            stencilPicker.OnStencilClick += (e, stencil) =>
             {
-                var sprite = stencil.ToSprite(this.Context.BlockStore);
-                var outline = new ColoredRectangle(max * 2, anchor: Anchor.AutoInline);
-                outline.SpaceAfter = new Vector2(10f, 10f);
-                outline.OutlineColor = Color.White;
-                outline.OutlineWidth = 1;
-                outline.FillColor = Color.CornflowerBlue;
-                outline.SetStyleProperty("FillColor", new StyleProperty(Color.Red), EntityState.MouseHover);
-                outline.OnClick += (e) =>
-                {
-                    this.curr = stencil;
-                };
-
-                var img = new SpriteImage(sprite, new Vector2(sprite.Width * 2, sprite.Height * 2), anchor: Anchor.Center);
-                img.Padding = Vector2.Zero;
-                img.Scale = 1f;
-                img.Locked = true;
-                
-                outline.AddChild(img);
-                stencilMenu.panel.AddChild(outline);
-            }
+                this.curr = stencil;
+            };
+            stencilPicker.Scrollbar.Max = (uint)(this.menu.Size.Y * 4); // we have to guess at the maximum height...
+            stencilMenu.panel.AddChild(stencilPicker);
 
             UserInterface.AddEntity(this.menu);
+        }
+
+        public override void SetUp()
+        {
+            base.SetUp();
+
+            var font = Store.Instance.Fonts("Base", "debug");
+            if (!File.Exists(DefaultMap))
+            {
+                File.Copy("Content\\Maps\\landscape.map", DefaultMap, true);
+            }
+            this.Context.Map = BinTileMapSerializer.Load(DefaultMap);
+
+            // stencils
+            this.stencils.Clear();
+#if STATICDATA
+            this.stencils.AddRange(StaticData16x16.Instance.CreateStencils());
+            using (var serializer = new MgiJsonSerializer("Stencils16x16.json", SerializerMode.Write))
+            {
+                serializer.Context.WriteList("stencils", this.stencils, PlatformSerialize.Write);
+            }
+#else
+            using (var serializer = new MgiJsonSerializer("Stencils16x16.json", SerializerMode.Read))
+            {
+                this.stencils.AddRange(serializer.Context.ReadList<TileStencil>("stencils", PlatformSerialize.Read));
+            }
+#endif
+
+            this.SetUpUI();
 
             this.Context.Time = new TimeSpan(12, 0, 0);
             this.Camera.Position = Vector2.Zero;
@@ -536,19 +247,6 @@ namespace Platform
                         if (this.curr != null)
                         {
                             this.curr.Stamp(this.Context.Map, mouseTile, this.layer);
-                            /*var cell = this.Context.Map[mouseTile];
-                            switch (this.layer)
-                            {
-                                case Layer.Background:
-                                    cell.Background.Add(this.currTile.Clone());
-                                    break;
-                                case Layer.Blocking:
-                                    cell.Block = this.currTile.Clone();
-                                    break;
-                                case Layer.Foreground:
-                                    cell.Foreground.Add(this.currTile.Clone());
-                                    break;
-                            }*/
                         }
                         this.lastPlacement = new TilePlacement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Left };
                     }

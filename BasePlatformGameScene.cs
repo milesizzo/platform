@@ -45,62 +45,23 @@ namespace Platform
 
             this.Context.LightsEnabled = true;
 
-#if MANUAL_BLOCKSTORE
-            this.Context.BlockStore = this.Setup16x16BlockStore();
-#else
-            using (var serializer = new MgiJsonSerializer("Content\\BlockStore32x32.json", SerializerMode.Read))
+#if STATICDATA
+            this.Context.BlockStore = StaticData16x16.Instance.SetupBlockStore();
+            StaticData16x16.Instance.AddPrefabs(this.Context);
+            using (var serializer = new MgiJsonSerializer($"BlockStore{StaticData16x16.Instance.Name}.json", SerializerMode.Write))
             {
-                this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", this.Store, PlatformSerialize.Read);
+                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
+            }
+#else
+            using (var serializer = new MgiJsonSerializer("Content\\BlockStore16x16.json", SerializerMode.Read))
+            {
+                this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", Store.Instance, PlatformSerialize.Read);
             }
 #endif
-            this.Context.BlockStore.Prefabs.Add("tree1", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree1")));
-            this.Context.BlockStore.Prefabs.Add("tree2", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree2")));
-            this.Context.BlockStore.Prefabs.Add("tree3", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree3")));
-            this.Context.BlockStore.Prefabs.Add("tree4", new VisibleObjectPrefab(this.Context, Store.Instance.Sprites<ISpriteTemplate>("Base", "tree4")));
 
             this.Camera.LookAt(new Vector2(0, 0));
             this.Camera.SamplerState = SamplerState.PointClamp;
             this.Camera.Zoom = 4f;
-        }
-
-        private BlockStore Setup32x32BlockStore()
-        {
-            var blockStore = new BlockStore(32);
-            /*blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.001").Sprites);
-            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.002").Sprites);
-            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.003").Sprites);
-            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.004").Sprites);
-            blockStore.Tiles.AddRange(this.Store.Sprites<SpriteSheetTemplate>("Base", "tiles.005").Sprites);*/
-            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.uppgk").Sprites);
-            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.ppgk").Sprites);
-            //blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.ssgt").Sprites);
-            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.stonefence").Sprites);
-            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.blocks").Sprites);
-
-            //blockStore.Blocks[MaterialType.Dirt].AddRange(new[] { 8 });
-            //blockStore.Blocks[MaterialType.Water].AddRange(new[] { 74 });
-            //blockStore.Blocks[MaterialType.Grass].AddRange(new[] { 43, 44 });
-            using (var serializer = new MgiJsonSerializer("BlockStore32x32.json", SerializerMode.Write))
-            {
-                serializer.Context.Write("blockstore", blockStore, PlatformSerialize.Write);
-            }
-            return blockStore;
-        }
-
-        private BlockStore Setup16x16BlockStore()
-        {
-            var blockStore = new BlockStore(16);
-            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt").Sprites);
-            blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt.gothic").Sprites);
-            blockStore.SetMaterial(MaterialType.Water, 313, 314, 318, 319, 326, 327, 328, 329, 336, 337, 338, 339, 345, 346, 347, 348, 349);
-            blockStore.SetMaterial(MaterialType.OneWay, 155, 156, 157, 158, 159, 165, 166, 167, 168, 169, 186);
-            blockStore.SetMaterial(MaterialType.Ladder, 378, 388, 398, 408, 418, 428);
-            blockStore.Materials[MaterialType.Dirt].Add(101);
-            using (var serializer = new MgiJsonSerializer("BlockStore16x16.json", SerializerMode.Write))
-            {
-                serializer.Context.Write("blockstore", blockStore, PlatformSerialize.Write);
-            }
-            return blockStore;
         }
 
         public override void PreDraw(Renderer renderer)
