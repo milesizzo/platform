@@ -14,8 +14,6 @@ namespace Platform
     public class PlatformGame : SceneGame
     {
         public static GameWindow CurrentWindow;
-        private SpriteBatch ui;
-        private Panel panel;
 
         public PlatformGame()
         {
@@ -23,10 +21,9 @@ namespace Platform
 
         protected override void Initialize()
         {
-            this.ui = new SpriteBatch(this.GraphicsDevice);
             UserInterface.Initialize(this.Content, BuiltinThemes.lowres);
-            UserInterface.UseRenderTarget = true;
-            UserInterface.GlobalScale = 1f;
+            UserInterface.Active.UseRenderTarget = true;
+            UserInterface.Active.GlobalScale = 1f;
             // TODO: Add your initialization logic here
             base.Initialize();
             this.IsMouseVisible = false;
@@ -54,9 +51,6 @@ namespace Platform
 
         protected override void Update(GameTime gameTime)
         {
-            //if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape)) Exit();
-            UserInterface.Update(gameTime);
-
             if (this.CurrentScene == null)
             {
                 Exit();
@@ -69,18 +63,6 @@ namespace Platform
             {
                 this.SetCurrentScene("Main");
             }
-            if (KeyboardHelper.KeyPressed(Keys.D0))
-            {
-                if (this.panel != null) UserInterface.RemoveEntity(this.panel);
-                this.panel = new Panel(new Vector2(500, 500));
-                UserInterface.AddEntity(this.panel);
-            }
-            if (KeyboardHelper.KeyPressed(Keys.D9))
-            {
-                UserInterface.RemoveEntity(this.panel);
-                this.panel = null;
-            }
-
             base.Update(gameTime);
         }
 

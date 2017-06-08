@@ -94,11 +94,11 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="DataTypes, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\GeonBit.UI.2.0.2.1\lib\geonbitui\DataTypes.dll</HintPath>
+      <HintPath>packages\GeonBit.UI.3.0.0\lib\geonbitui\DataTypes.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="GeonBit.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>packages\GeonBit.UI.2.0.2.1\lib\geonbitui\GeonBit.UI.dll</HintPath>
+      <HintPath>packages\GeonBit.UI.3.0.0\lib\geonbitui\GeonBit.UI.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">

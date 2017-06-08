@@ -6,6 +6,8 @@ using System.IO;
 
 namespace Platform
 {
+    // TODO: implement tile equality (don't allow dups in the lists)
+    // maybe if you insert a dup, it moves it to the front of the list?
     public class MapCell
     {
         public readonly List<ITile> Background = new List<ITile>();

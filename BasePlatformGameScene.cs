@@ -66,7 +66,7 @@ namespace Platform
 
         public override void PreDraw(Renderer renderer)
         {
-            UserInterface.Draw(this.ui);
+            UserInterface.Active.Draw(this.ui);
 
             // draw the lights
             this.Graphics.SetRenderTarget(this.lightsTarget);
@@ -90,7 +90,7 @@ namespace Platform
 
         public override void Update(GameTime gameTime)
         {
-            UserInterface.Update(gameTime);
+            UserInterface.Active.Update(gameTime);
             base.Update(gameTime);
         }
 
@@ -114,7 +114,7 @@ namespace Platform
             // finally, render the screen layer
             renderer.Screen.End();
 
-            UserInterface.DrawMainRenderTarget(this.ui);
+            UserInterface.Active.DrawMainRenderTarget(this.ui);
         }
     }
 }
