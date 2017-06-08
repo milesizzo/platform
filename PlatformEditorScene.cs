@@ -71,13 +71,19 @@ namespace Platform
 
             // file menu
             var fileMenu = (this.mainMenu as PanelTabs).AddTab("File", PanelSkin.Default);
-            var processButton = new Button("Process", anchor: Anchor.AutoCenter, size: new Vector2(200, 100));
+            var processButton = new Button("Process", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
             processButton.OnClick += (b) =>
             {
                 var processor = new PFPTMapProcessor();
                 processor.Process(this.Context.Map);
             };
             fileMenu.panel.AddChild(processButton);
+            var saveBlockStoreButton = new Button("Save BlockStore", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
+            saveBlockStoreButton.OnClick += (b) =>
+            {
+                this.SaveBlockStore();
+            };
+            fileMenu.panel.AddChild(saveBlockStoreButton);
 
             // 'save map' area
             var savePanel = new Panel(new Vector2(600, 100), skin: PanelSkin.Simple, anchor: Anchor.BottomLeft);
@@ -86,7 +92,7 @@ namespace Platform
             filenameInput.Value = DefaultMap;
             savePanel.AddChild(filenameInput);
 
-            var saveButton = new Button("Save map", anchor: Anchor.CenterRight, size: new Vector2(200, 0));
+            var saveButton = new Button("Save", anchor: Anchor.CenterRight, size: new Vector2(200, 0));
             saveButton.OnClick += (b) =>
             {
                 var filename = filenameInput.Value.Trim();
@@ -101,7 +107,7 @@ namespace Platform
             fileMenu.panel.AddChild(savePanel);
 
             // quit button
-            var quitButton = new Button("Quit", anchor: Anchor.BottomRight, size: new Vector2(200, 100));
+            var quitButton = new Button("Quit", anchor: Anchor.BottomRight, size: new Vector2(400, 100));
             quitButton.OnClick += (b) =>
             {
                 this.SceneEnded = true;
@@ -126,23 +132,23 @@ namespace Platform
                 var asTile = tile as Tile;
                 if (asTile != null)
                 {
-                    var materialLabel = new Label("Material:", anchor: Anchor.AutoInline);
-                    tileSettingsPanel.AddChild(materialLabel);
-                    foreach (var material in EnumHelper.GetValues<MaterialType>())
+                    var flagsLabel = new Label("Flags:", anchor: Anchor.AutoInline);
+                    tileSettingsPanel.AddChild(flagsLabel);
+                    foreach (var flag in EnumHelper.GetValues<TileFlags>())
                     {
-                        if (material == MaterialType.None) continue;
-                        var checkBox = new CheckBox($"{material}", anchor: Anchor.AutoCenter);
-                        checkBox.Checked = this.Context.BlockStore[asTile.Id].HasFlag(material);
+                        if (flag == TileFlags.None) continue;
+                        var checkBox = new CheckBox($"{flag}", anchor: Anchor.AutoCenter);
+                        checkBox.Checked = this.Context.BlockStore[asTile.Id].HasFlag(flag);
                         checkBox.OnValueChange += (entity) =>
                         {
                             var currState = this.Context.BlockStore[asTile.Id];
                             if (checkBox.Checked)
                             {
-                                currState |= material;
+                                currState |= flag;
                             }
                             else
                             {
-                                currState &= ~material;
+                                currState &= ~flag;
                             }
                             this.Context.BlockStore[asTile.Id] = currState;
                         };
@@ -415,12 +421,12 @@ namespace Platform
                 }
                 var tileText = new StringBuilder();
                 var cell = this.Context.Map[mouseTile];
-                var materials = this.Context.GetMaterials(mouseTile);
+                var flags = this.Context.GetFlags(mouseTile);
                 tileText.AppendLine($"   Position: {mouseTile}");
                 tileText.AppendLine($" Foreground: " + string.Join(",", cell.Foreground.Select(t => t.DebugString)));
                 tileText.AppendLine($" Background: " + string.Join(",", cell.Background.Select(t => t.DebugString)));
                 tileText.AppendLine($"      Block: " + (cell.Block == null ? "null" : cell.Block.DebugString));
-                tileText.AppendLine($"Material(s): " + materials);
+                tileText.AppendLine($"      Flags: " + flags);
                 font.DrawString(renderer.Screen, new Vector2(0, 800), tileText.ToString(), Color.Wheat);
             }
 

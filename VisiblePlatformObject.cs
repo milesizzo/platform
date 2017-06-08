@@ -58,13 +58,13 @@ namespace Platform
 
             if (this.IsPhysicsEnabled)
             {
-                var materials = this.Context.GetMaterials(this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Top)));
-                materials |= this.Context.GetMaterials(this.Context.WorldToTile(new Vector2(this.bounds.Right, this.bounds.Bottom)));
-                if (!materials.HasFlag(MaterialType.Water) && this.InWater)
+                var flags = this.Context.GetFlags(this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Top)));
+                flags |= this.Context.GetFlags(this.Context.WorldToTile(new Vector2(this.bounds.Right, this.bounds.Bottom)));
+                if (!flags.HasFlag(TileFlags.Water) && this.InWater)
                 {
                     this.velocity.Y *= 2;
                 }
-                this.inWater = materials.HasFlag(MaterialType.Water);
+                this.inWater = flags.HasFlag(TileFlags.Water);
 
                 var elapsed = gameTime.GetElapsedSeconds();
                 if (!this.OnGround && this.IsGravityEnabled)
@@ -92,10 +92,22 @@ namespace Platform
                     var xBottomRight = new Vector2(right, (float)Math.Ceiling(this.bounds.Bottom - 1));
                     var xTileTopRight = this.Context.WorldToTile(xTopRight);
                     var xTileBottomRight = this.Context.WorldToTile(xBottomRight);
+
                     if (!this.Context.IsPassable(xTileTopRight, xTileBottomRight))
                     {
-                        this.velocity.X = 0;
-                        this.bounds.X = this.Context.TileToWorld(xTileTopRight).X - this.bounds.Width;
+                        // not passable, but are we on a slope?
+                        var slope = this.Context.SlopeAmountRight(xBottomRight, 10);
+                        if (slope < 10)
+                        {
+                            // we allow Y jumps of up to 4
+                            this.bounds.Y -= MathHelper.Max(slope, 0);
+                            this.bounds.X += dv.X;
+                        }
+                        else
+                        {
+                            this.velocity.X = 0;
+                            this.bounds.X = this.Context.TileToWorld(xTileTopRight).X - this.bounds.Width;
+                        }
                     }
                     else
                     {
@@ -105,12 +117,24 @@ namespace Platform
                 else if (dv.X < 0)
                 {
                     var left = (float)Math.Floor(this.bounds.Left + dv.X);
+                    var xBottomLeft = new Vector2(left, (float)Math.Ceiling(this.bounds.Bottom - 1));
                     var xTileTopLeft = this.Context.WorldToTile(new Vector2(left, (float)Math.Floor(this.bounds.Top)));
-                    var xTileBottomLeft = this.Context.WorldToTile(new Vector2(left, (float)Math.Ceiling(this.bounds.Bottom - 1)));
+                    var xTileBottomLeft = this.Context.WorldToTile(xBottomLeft);
                     if (!this.Context.IsPassable(xTileTopLeft, xTileBottomLeft))
                     {
-                        this.velocity.X = 0;
-                        this.bounds.X = this.Context.TileToWorld(xTileTopLeft.X + 1, xTileTopLeft.Y).X;
+                        // not passable, but are we on a slope?
+                        var slope = this.Context.SlopeAmountLeft(xBottomLeft, 10);
+                        if (slope < 10)
+                        {
+                            // we allow Y jumps of up to 4
+                            this.bounds.Y -= MathHelper.Max(slope, 0);
+                            this.bounds.X += dv.X;
+                        }
+                        else
+                        {
+                            this.velocity.X = 0;
+                            this.bounds.X = this.Context.TileToWorld(xTileTopLeft.X + 1, xTileTopLeft.Y).X;
+                        }
                     }
                     else
                     {
@@ -122,21 +146,32 @@ namespace Platform
                 if (dv.Y > 0)
                 {
                     // test tile beneath us
-                    var bottom = (float)Math.Ceiling(this.bounds.Bottom - 1 + dv.Y);
-                    var yTileBottomLeft = this.Context.WorldToTile(new Vector2((float)Math.Floor(this.bounds.Left), bottom));
-                    var yTileBottomRight = this.Context.WorldToTile(new Vector2((float)Math.Ceiling(this.bounds.Right - 1), bottom));
-                    if (!this.Context.IsPassable(yTileBottomLeft, yTileBottomRight))
+                    var bottom = (float)Math.Ceiling(this.bounds.Bottom - 1);
+                    var bottomPlusDrop = (float)Math.Ceiling(this.bounds.Bottom - 1 + dv.Y);
+                    var search = bottom;
+                    while (search <= bottomPlusDrop)
                     {
-                        this.velocity.Y = 0;
-                        this.bounds.Y = this.Context.TileToWorld(yTileBottomLeft).Y - this.bounds.Height;
+                        var yBottomLeft = new Vector2((float)Math.Floor(this.bounds.Left), search);
+                        var yBottomRight = new Vector2((float)Math.Ceiling(this.bounds.Right - 1), search);
+                        var yTileBottomLeft = this.Context.WorldToTile(yBottomLeft);
+                        var yTileBottomRight = this.Context.WorldToTile(yBottomRight);
+                        if (!this.Context.IsPassable(yBottomLeft, yBottomRight))
+                        {
+                            this.velocity.Y = 0;
+                            this.bounds.Y = search - this.bounds.Height;
+                            break;
+                        }
+                        else if (this.Context.IsOneWayPlatform(yTileBottomLeft, yTileBottomRight))
+                        {
+                            this.velocity.Y = 0;
+                            this.bounds.Y = search - this.bounds.Height;
+                            break;
+                        }
+                        search++;
                     }
-                    else if (this.Context.IsOneWayPlatform(yTileBottomLeft, yTileBottomRight))
+                    if (search > bottomPlusDrop)
                     {
-                        this.velocity.Y = 0;
-                        this.bounds.Y = this.Context.TileToWorld(yTileBottomLeft).Y - this.bounds.Height;
-                    }
-                    else
-                    {
+                        // we didn't encounter an obstacle - increase Y
                         this.bounds.Y += dv.Y;
                     }
                 }
@@ -148,7 +183,7 @@ namespace Platform
                     var yTileTopRight = this.Context.WorldToTile(new Vector2((float)Math.Ceiling(this.bounds.Right - 1), top));
                     if (!this.Context.IsPassable(yTileTopLeft, yTileTopRight))
                     {
-                        this.velocity.Y = 0;// -this.velocity.Y;
+                        this.velocity.Y = 0;
                         this.bounds.Y = this.Context.TileToWorld(yTileTopLeft.X, yTileTopLeft.Y + 1).Y;
                     }
                     else
@@ -158,9 +193,11 @@ namespace Platform
                 }
             }
 
-            var tileBottomLeft = this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Bottom));
-            var tileBottomRight = this.Context.WorldToTile(new Vector2(this.bounds.Right - 1, this.bounds.Bottom));
-            if (!this.Context.IsPassable(tileBottomLeft, tileBottomRight) || this.Context.IsOneWayPlatform(tileBottomLeft, tileBottomRight))
+            var bottomLeft = new Vector2(this.bounds.Left, this.bounds.Bottom);
+            var bottomRight = new Vector2(this.bounds.Right - 1, this.bounds.Bottom);
+            var tileBottomLeft = this.Context.WorldToTile(bottomLeft);
+            var tileBottomRight = this.Context.WorldToTile(bottomRight);
+            if (!this.Context.IsPassable(bottomLeft, bottomRight) || this.Context.IsOneWayPlatform(tileBottomLeft, tileBottomRight))
             {
                 this.onGround = true;
             }

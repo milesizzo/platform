@@ -6,17 +6,32 @@ using GameEngine.Templates;
 using MonoGame.Extended;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Platform
 {
+    [Flags]
+    public enum TileFlags
+    {
+        None = 0,
+        Water = 1 << 0,
+        OneWay = 1 << 1,
+        Ladder = 1 << 2,
+        SlopeLU = 1 << 3,
+        SlopeUL = 1 << 4,
+        SlopeLUReversed = 1 << 5,
+        SlopeULReversed = 1 << 6,
+        StepsLU = 1 << 7,
+        StepsUL = 1 << 8,
+    }
+
     public class BlockStore
     {
         public readonly int TileSize;
         public readonly DefaultDictionary<MaterialType, List<int>> Materials = new DefaultDictionary<MaterialType, List<int>>(m => new List<int>());
         public readonly List<ISpriteTemplate> Tiles = new List<ISpriteTemplate>();
         public readonly Dictionary<string, VisibleObjectPrefab> Prefabs = new Dictionary<string, VisibleObjectPrefab>();
-        private readonly Dictionary<int, MaterialType> idToMaterial = new Dictionary<int, MaterialType>();
-        //private readonly DefaultDictionary<MaterialType, HashSet<int>> materialToId = new DefaultDictionary<MaterialType, HashSet<int>>(m => new HashSet<int>());
+        private readonly Dictionary<int, TileFlags> idToFlags = new Dictionary<int, TileFlags>();
 
         public BlockStore(int tileSize)
         {
@@ -35,7 +50,7 @@ namespace Platform
             }
         }
 
-        public void SetMaterial(MaterialType type, params int[] ids)
+        public void SetFlags(TileFlags type, params int[] ids)
         {
             foreach (var id in ids)
             {
@@ -43,30 +58,27 @@ namespace Platform
             }
         }
 
-        public MaterialType this[int id]
+        public TileFlags this[int id]
         {
             get
             {
-                MaterialType value;
-                if (this.idToMaterial.TryGetValue(id, out value))
+                TileFlags value;
+                if (this.idToFlags.TryGetValue(id, out value))
                 {
                     return value;
                 }
-                return MaterialType.None;
+                return TileFlags.None;
             }
             set
             {
-                this.idToMaterial[id] = value;
-                //this.materialToId[value].Add(id);
+                this.idToFlags[id] = value;
             }
         }
 
-        /*public IEnumerable<int> this[MaterialType material]
+        // NOTE: this is for serialization only
+        internal IEnumerable<KeyValuePair<int, TileFlags>> Flags
         {
-            get
-            {
-                return this.materialToId[material];
-            }
-        }*/
+            get { return this.idToFlags.OrderBy(kvp => kvp.Key); }
+        }
     }
 }

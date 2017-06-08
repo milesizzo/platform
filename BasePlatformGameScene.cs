@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Platform.Serializing;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,6 +29,14 @@ namespace Platform
         public BasePlatformGameScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
             //
+        }
+
+        protected void SaveBlockStore()
+        {
+            using (var serializer = new MgiJsonSerializer($"BlockStore{StaticData16x16.Instance.Name}.json", SerializerMode.Write))
+            {
+                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
+            }
         }
 
         public override void SetUp()
@@ -48,12 +57,13 @@ namespace Platform
 #if STATICDATA
             this.Context.BlockStore = StaticData16x16.Instance.SetupBlockStore();
             StaticData16x16.Instance.AddPrefabs(this.Context);
-            using (var serializer = new MgiJsonSerializer($"BlockStore{StaticData16x16.Instance.Name}.json", SerializerMode.Write))
-            {
-                serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
-            }
+            this.SaveBlockStore();
 #else
-            using (var serializer = new MgiJsonSerializer("Content\\BlockStore16x16.json", SerializerMode.Read))
+            if (!File.Exists("BlockStore16x16.json"))
+            {
+                File.Copy("Content\\BlockStore16x16.json", "BlockStore16x16.json");
+            }
+            using (var serializer = new MgiJsonSerializer("BlockStore16x16.json", SerializerMode.Read))
             {
                 this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", Store.Instance, PlatformSerialize.Read);
             }

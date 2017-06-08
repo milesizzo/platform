@@ -104,6 +104,13 @@ namespace Platform
             return new Point((int)(world.X / this.BlockStore.TileSize), (int)(world.Y / this.BlockStore.TileSize));
         }
 
+        public Point WorldToTile(Vector2 world, out Vector2 offset)
+        {
+            var tile = this.WorldToTile(world);
+            offset = new Vector2(world.X - tile.X * this.BlockStore.TileSize, world.Y - tile.Y * this.BlockStore.TileSize);
+            return tile;
+        }
+
         public Vector2 TileToWorld(Point tile)
         {
             return this.TileToWorld(tile.X, tile.Y);
@@ -174,34 +181,29 @@ namespace Platform
             return this.camera.ScreenToWorld(pos);
         }
 
-        private MaterialType GetMaterials(ITile tile)
+        private TileFlags GetFlags(ITile tile)
         {
-            var result = MaterialType.None;
-            var asMaterial = tile as Material;
+            var result = TileFlags.None;
             var asTile = tile as Tile;
-            if (asMaterial != null)
-            {
-                result |= asMaterial.Type;
-            }
-            else if (asTile != null)
+            if (asTile != null)
             {
                 result |= this.BlockStore[asTile.Id];
             }
             return result;
         }
 
-        public MaterialType GetMaterials(Point pos)
+        public TileFlags GetFlags(Point pos)
         {
             var cell = this.Map[pos];
-            var result = cell.Foreground.Aggregate(MaterialType.None, (m, t) => m | this.GetMaterials(t));
-            result = cell.Background.Aggregate(result, (m, t) => m | this.GetMaterials(t));
-            result |= this.GetMaterials(cell.Block);
+            var result = cell.Foreground.Aggregate(TileFlags.None, (m, t) => m | this.GetFlags(t));
+            result = cell.Background.Aggregate(result, (m, t) => m | this.GetFlags(t));
+            result |= this.GetFlags(cell.Block);
             return result;
         }
 
         public bool IsOneWayPlatform(int x, int y)
         {
-            return this.GetMaterials(new Point(x, y)).HasFlag(MaterialType.OneWay);
+            return this.GetFlags(new Point(x, y)).HasFlag(TileFlags.OneWay);
         }
 
         public bool IsOneWayPlatform(Point first, Point second)
@@ -243,6 +245,117 @@ namespace Platform
                 }
             }
             return true;
+        }
+
+        public bool IsPassable(Vector2 topLeft, Vector2 bottomRight)
+        {
+            Vector2 offsetBottomRight;
+            if (this.IsPassable(this.WorldToTile(topLeft), this.WorldToTile(bottomRight, out offsetBottomRight)))
+            {
+                return true;
+            }
+            var slopeLU = false;
+            var tile = this.Map[this.WorldToTile(bottomRight)].Block as Tile;
+            if (tile != null)
+            {
+                if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeLU))
+                {
+                    if (offsetBottomRight.Y - (this.BlockStore.TileSize - offsetBottomRight.X) > 0)
+                    {
+                        // we're in the slope
+                        return false;
+                    }
+                    slopeLU = true;
+                }
+            }
+            Vector2 offsetBottomLeft;
+            tile = this.Map[this.WorldToTile(new Vector2(topLeft.X, bottomRight.Y), out offsetBottomLeft)].Block as Tile;
+            var slopeUL = false;
+            if (tile != null)
+            {
+                if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeUL))
+                {
+                    if (offsetBottomLeft.Y >= offsetBottomLeft.X)
+                    {
+                        // we're in the slope
+                        return false;
+                    }
+                    slopeUL = true;
+                }
+            }
+            if (slopeLU || slopeUL)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public float SlopeAmountRight(Vector2 bottomRight, int searchHeight)
+        {
+            // 1. check if bottomRight is in a slope tile
+            // 2. check bit mask / function, return distance to slope
+            Vector2 offset;
+            var bottomRightTile = this.WorldToTile(bottomRight, out offset);
+            var count = 0;
+            while (count < searchHeight)
+            {
+                if (this.IsPassable(bottomRightTile))
+                {
+                    return count;
+                }
+                var tile = this.Map[bottomRightTile].Block as Tile;
+                if (tile != null)
+                {
+                    if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeLU))
+                    {
+                        // y = TS - x
+                        var surface = this.BlockStore.TileSize - offset.X;
+                        return count + (offset.Y - surface);
+                    }
+                }
+                count++;
+                offset.Y -= 1;
+                if (offset.Y < 0)
+                {
+                    offset.Y += this.BlockStore.TileSize;
+                    bottomRightTile.Y--;
+                }
+            }
+            return float.MaxValue;
+        }
+
+        public float SlopeAmountLeft(Vector2 bottomLeft, int searchHeight)
+        {
+            // 1. check if bottomLeft is in a slope tile
+            // 2. check bit mask / function, return distance to slope
+            Vector2 offset;
+            var bottomLeftTile = this.WorldToTile(bottomLeft, out offset);
+            var count = 0;
+            while (count < searchHeight)
+            {
+                if (this.IsPassable(bottomLeftTile))
+                {
+                    return count;
+                }
+                var tile = this.Map[bottomLeftTile].Block as Tile;
+                if (tile != null)
+                {
+                    if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeUL))
+                    {
+                        // y = x
+                        var surface = offset.X;
+                        return count + (offset.Y - surface);
+                    }
+                }
+                count++;
+                offset.Y -= 1;
+                if (offset.Y < 0)
+                {
+                    offset.Y += this.BlockStore.TileSize;
+                    bottomLeftTile.Y--;
+                }
+            }
+            return float.MaxValue;
         }
 
         public override void Update(GameTime gameTime)

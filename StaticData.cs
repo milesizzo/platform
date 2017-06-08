@@ -302,9 +302,9 @@ namespace Platform
             var blockStore = new BlockStore(16);
             blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt").Sprites);
             blockStore.Tiles.AddRange(Store.Instance.Sprites<SpriteSheetTemplate>("Base", "tiles.pfpt.gothic").Sprites);
-            blockStore.SetMaterial(MaterialType.Water, 313, 314, 318, 319, 326, 327, 328, 329, 336, 337, 338, 339, 345, 346, 347, 348, 349);
-            blockStore.SetMaterial(MaterialType.OneWay, 155, 156, 157, 158, 159, 165, 166, 167, 168, 169, 186);
-            blockStore.SetMaterial(MaterialType.Ladder, 378, 388, 398, 408, 418, 428);
+            blockStore.SetFlags(TileFlags.Water, 313, 314, 318, 319, 326, 327, 328, 329, 336, 337, 338, 339, 345, 346, 347, 348, 349);
+            blockStore.SetFlags(TileFlags.OneWay, 155, 156, 157, 158, 159, 165, 166, 167, 168, 169, 186);
+            blockStore.SetFlags(TileFlags.Ladder, 378, 388, 398, 408, 418, 428);
             blockStore.Materials[MaterialType.Dirt].Add(101);
 
 

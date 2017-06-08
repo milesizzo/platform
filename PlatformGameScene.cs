@@ -334,7 +334,7 @@ namespace Platform
                         break;
                 }
             }
-            else if (this.player.Velocity.Y < 0 || this.player.Velocity.Y > 0 || !this.player.OnGround)
+            else if (this.player.Velocity.Y < 0 || this.player.Velocity.Y > 0)// || !this.player.OnGround)
             {
                 switch (this.playerFacing)
                 {
