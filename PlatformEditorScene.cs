@@ -176,23 +176,50 @@ namespace Platform
 
             foreach (var material in EnumHelper.GetValues<MaterialType>())
             {
-                materialList.AddItem($"{material}");
+                if (material != MaterialType.None) materialList.AddItem($"{material}");
             }
             materialList.OnValueChange += (e) =>
             {
-                var material = (MaterialType)materialList.SelectedIndex;
+                var material = (MaterialType)(materialList.SelectedIndex + 1);
                 settingsPanel.ClearChildren();
-                if (material != MaterialType.None)
+                var materialTilePicker = new TilePicker(
+                    this.Context.BlockStore,
+                    this.Context.BlockStore.Materials[material].Select(id => new Tile(id)),
+                    size: new Vector2(0, 700),
+                    anchor: Anchor.AutoCenter);
+                settingsPanel.AddChild(materialTilePicker);
+                var deleteTile = new Button("Delete tile", anchor: Anchor.AutoCenter);
+                deleteTile.OnClick += (entity) =>
                 {
-                    var materialTilePicker = new TilePicker(
+                    var asTile = materialTilePicker.SelectedTile as Tile;
+                    if (asTile != null)
+                    {
+                        materialTilePicker.RemoveSelected();
+                        this.Context.BlockStore.Materials[material].Remove(asTile.Id);
+                    }
+                };
+                settingsPanel.AddChild(deleteTile);
+                var addTile = new Button("Add tile", anchor: Anchor.AutoCenter);
+                addTile.OnClick += (entity) =>
+                {
+                    var materialNewTilePicker = new TilePicker(
                         this.Context.BlockStore,
-                        this.Context.BlockStore.Materials[material].Select(id => new Tile(id)),
-                        size: new Vector2(0, 800),
-                        anchor: Anchor.AutoCenter);
-                    settingsPanel.AddChild(materialTilePicker);
-                    var addTile = new Button("Add tile", anchor: Anchor.AutoCenter);
-                    settingsPanel.AddChild(addTile);
-                }
+                        this.Context.BlockStore.Tiles.Select((s, i) => new Tile(i)),
+                        size: new Vector2(1000, 900),
+                        anchor: Anchor.TopCenter);
+                    materialNewTilePicker.OnTileClick += (picker, tile) =>
+                    {
+                        var asTile = tile as Tile;
+                        if (asTile != null)
+                        {
+                            this.Context.BlockStore.Materials[material].Add(asTile.Id);
+                            materialTilePicker.AddTile(tile);
+                        }
+                        UserInterface.Active.RemoveEntity(materialNewTilePicker);
+                    };
+                    UserInterface.Active.AddEntity(materialNewTilePicker);
+                };
+                settingsPanel.AddChild(addTile);
             };
             materialsMenu.panel.AddChild(materialList);
 

@@ -28,6 +28,7 @@ namespace Platform
     public class BlockStore
     {
         public readonly int TileSize;
+        public readonly int QuarterTileSize;
         public readonly DefaultDictionary<MaterialType, List<int>> Materials = new DefaultDictionary<MaterialType, List<int>>(m => new List<int>());
         public readonly List<ISpriteTemplate> Tiles = new List<ISpriteTemplate>();
         public readonly Dictionary<string, VisibleObjectPrefab> Prefabs = new Dictionary<string, VisibleObjectPrefab>();
@@ -36,6 +37,7 @@ namespace Platform
         public BlockStore(int tileSize)
         {
             this.TileSize = tileSize;
+            this.QuarterTileSize = tileSize / 4;
         }
 
         public void DrawTile(SpriteBatch sb, Vector2 pos, ITile tile, float depth, Color colour, Vector2? scale = null)

@@ -16,9 +16,9 @@ namespace Platform.Serializing
         public static void Write(ISerializer context, BlockStore store)
         {
             context.Write("tilesize", store.TileSize);
-            //context.WriteList("blocks", EnumHelper.GetValues<MaterialType>().Select(t => Tuple.Create(t, store.Blocks[t])).ToList(), Write);
             context.WriteList("tiles", store.Tiles, Write);
             context.WriteList("flags", store.Flags.ToList(), Write);
+            context.WriteList("materials", store.Materials.ToList(), Write);
         }
 
         private static void Write(ISerializer context, ISpriteTemplate sprite)
@@ -44,21 +44,21 @@ namespace Platform.Serializing
             context.Write("flags", (int)flags.Value);
         }
 
-        private static void Write(ISerializer context, Tuple<MaterialType, List<int>> blocks)
+        private static void Write(ISerializer context, KeyValuePair<MaterialType, List<int>> blocks)
         {
-            context.Write("material", blocks.Item1.ToString());
-            context.WriteList("tiles", blocks.Item2);
+            context.Write("material", blocks.Key.ToString());
+            context.WriteList("tiles", blocks.Value);
         }
 
         public static void Read(Store store, IDeserializer context, out BlockStore blockStore)
         {
             var tileSize = context.Read<int>("tilesize");
             blockStore = new BlockStore(tileSize);
-            /*var blocks = context.ReadList<Tuple<MaterialType, IList<int>>>("blocks", Read);
-            foreach (var block in blocks)
+            var materials = context.ReadList<KeyValuePair<MaterialType, IList<int>>>("materials", Read);
+            foreach (var kvp in materials)
             {
-                blockStore.Blocks[block.Item1].AddRange(block.Item2);
-            }*/
+                blockStore.Materials[kvp.Key].AddRange(kvp.Value);
+            }
             var tiles = context.ReadList<ISpriteTemplate, Store>("tiles", store, Read);
             blockStore.Tiles.AddRange(tiles);
             var flags = context.ReadList<KeyValuePair<int, TileFlags>>("flags", Read);
@@ -73,7 +73,7 @@ namespace Platform.Serializing
             flags = new KeyValuePair<int, TileFlags>(context.Read<int>("id"), (TileFlags)context.Read<int>("flags"));
         }
 
-        private static void Read(IDeserializer context, out Tuple<MaterialType, IList<int>> blocks)
+        private static void Read(IDeserializer context, out KeyValuePair<MaterialType, IList<int>> blocks)
         {
             MaterialType material;
             if (!Enum.TryParse(context.Read<string>("material"), out material))
@@ -81,7 +81,7 @@ namespace Platform.Serializing
                 throw new InvalidOperationException("Unknown material type");
             }
             var tiles = context.ReadList<int>("tiles");
-            blocks = Tuple.Create(material, tiles);
+            blocks = new KeyValuePair<MaterialType, IList<int>>(material, tiles);
         }
 
         public static void Read(Store store, IDeserializer context, out ISpriteTemplate sprite)

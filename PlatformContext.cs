@@ -128,7 +128,7 @@ namespace Platform
 
         public static float ZToDepth(float z)
         {
-            return z * 0.6f + 0.2f;
+            return 0.7f - z * 0.6f;
         }
 
         public void AttachLightSource(IGameObject obj, Light light)
@@ -247,6 +247,16 @@ namespace Platform
             return true;
         }
 
+        private float GetSurfaceSlope(float x)
+        {
+            return x;
+        }
+
+        private float GetSurfaceStep(float x)
+        {
+            return (float)Math.Floor(x / this.BlockStore.QuarterTileSize) * this.BlockStore.QuarterTileSize;
+        }
+
         public bool IsPassable(Vector2 topLeft, Vector2 bottomRight)
         {
             Vector2 offsetBottomRight;
@@ -260,9 +270,18 @@ namespace Platform
             {
                 if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeLU))
                 {
-                    if (offsetBottomRight.Y - (this.BlockStore.TileSize - offsetBottomRight.X) > 0)
+                    if (offsetBottomRight.Y - (this.BlockStore.TileSize - this.GetSurfaceSlope(offsetBottomRight.X)) > 0)
                     {
                         // we're in the slope
+                        return false;
+                    }
+                    slopeLU = true;
+                }
+                if (this.BlockStore[tile.Id].HasFlag(TileFlags.StepsLU))
+                {
+                    if (offsetBottomRight.Y - (this.BlockStore.TileSize - this.GetSurfaceStep(offsetBottomRight.X)) > 0)
+                    {
+                        // we're in the step
                         return false;
                     }
                     slopeLU = true;
@@ -275,15 +294,54 @@ namespace Platform
             {
                 if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeUL))
                 {
-                    if (offsetBottomLeft.Y >= offsetBottomLeft.X)
+                    if (offsetBottomLeft.Y - this.GetSurfaceSlope(offsetBottomLeft.X) > 0)
                     {
                         // we're in the slope
                         return false;
                     }
                     slopeUL = true;
                 }
+                if (this.BlockStore[tile.Id].HasFlag(TileFlags.StepsUL))
+                {
+                    if (offsetBottomLeft.Y - this.GetSurfaceStep(offsetBottomLeft.X) > 0)
+                    {
+                        // we're in the step
+                        return false;
+                    }
+                    slopeUL = true;
+                }
             }
-            if (slopeLU || slopeUL)
+            Vector2 offsetTopLeft;
+            tile = this.Map[this.WorldToTile(new Vector2(topLeft.X, topLeft.Y), out offsetTopLeft)].Block as Tile;
+            var slopeLUReversed = false;
+            if (tile != null)
+            {
+                if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeLUReversed))
+                {
+                    if (this.GetSurfaceSlope(this.BlockStore.TileSize - offsetTopLeft.X) - offsetTopLeft.Y > 0)
+                    {
+                        // we're in the slope
+                        return false;
+                    }
+                    slopeLUReversed = true;
+                }
+            }
+            Vector2 offsetTopRight;
+            tile = this.Map[this.WorldToTile(new Vector2(bottomRight.X, topLeft.Y), out offsetTopRight)].Block as Tile;
+            var slopeULReversed = false;
+            if (tile != null)
+            {
+                if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeULReversed))
+                {
+                    if ((this.BlockStore.TileSize - this.GetSurfaceSlope(this.BlockStore.TileSize - offsetTopRight.X)) - offsetTopRight.Y > 0)
+                    {
+                        // we're in the slope
+                        return false;
+                    }
+                    slopeULReversed = true;
+                }
+            }
+            if (slopeLU || slopeUL || slopeULReversed || slopeLUReversed)
             {
                 return true;
             }
@@ -308,9 +366,11 @@ namespace Platform
                 {
                     if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeLU))
                     {
-                        // y = TS - x
-                        var surface = this.BlockStore.TileSize - offset.X;
-                        return count + (offset.Y - surface);
+                        return count + (offset.Y - (this.BlockStore.TileSize - this.GetSurfaceSlope(offset.X)));
+                    }
+                    if (this.BlockStore[tile.Id].HasFlag(TileFlags.StepsLU))
+                    {
+                        return count + (offset.Y - (this.BlockStore.TileSize - this.GetSurfaceStep(offset.X)));
                     }
                 }
                 count++;
@@ -342,9 +402,11 @@ namespace Platform
                 {
                     if (this.BlockStore[tile.Id].HasFlag(TileFlags.SlopeUL))
                     {
-                        // y = x
-                        var surface = offset.X;
-                        return count + (offset.Y - surface);
+                        return count + (offset.Y - this.GetSurfaceSlope(offset.X));
+                    }
+                    if (this.BlockStore[tile.Id].HasFlag(TileFlags.StepsUL))
+                    {
+                        return count + (offset.Y - this.GetSurfaceStep(offset.X));
                     }
                 }
                 count++;
@@ -403,7 +465,7 @@ namespace Platform
                     var cell = this.Map[y, x];
                     if (cell.Background.Count > 0)
                     {
-                        // (0.09, 0.08] is background
+                        // (0.9, 0.8] is background
                         var diff = (1f / cell.Background.Count) * 0.01f;
                         var depth = 0.9f - diff;
                         foreach (var tile in cell.Background)
@@ -412,17 +474,16 @@ namespace Platform
                             depth -= diff;
                         }
                     }
-                    // 0.02 is 'block'
-                    this.BlockStore.DrawTile(renderer.World, pos, cell.Block, 0.02f, Color.White);
+                    this.BlockStore.DrawTile(renderer.World, pos, cell.Block, 0.75f, Color.White);
                     if (AbstractObject.DebugInfo && cell.Block != null)
                     {
                         Store.Instance.Sprites<ISpriteTemplate>("Base", "white-16x16").DrawSprite(renderer.World, 0, pos, Color.Red, 0, Vector2.One, SpriteEffects.None, 0.019f);
                     }
                     if (cell.Foreground.Count > 0)
                     {
-                        // (0.02, 0.01] is foreground
+                        // (0.2, 0.1] is foreground
                         var diff = (1f / cell.Foreground.Count) * 0.01f;
-                        var depth = 0.02f - diff;
+                        var depth = 0.2f - diff;
                         foreach (var tile in cell.Foreground)
                         {
                             this.BlockStore.DrawTile(renderer.World, pos, tile, depth, Color.White);

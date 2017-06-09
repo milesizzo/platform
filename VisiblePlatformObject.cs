@@ -171,23 +171,33 @@ namespace Platform
                     }
                     if (search > bottomPlusDrop)
                     {
-                        // we didn't encounter an obstacle - increase Y
+                        // we didn't encounter an obstacle - apply Y velocity
                         this.bounds.Y += dv.Y;
                     }
                 }
                 else if (dv.Y < 0)
                 {
                     // test tile above us
-                    var top = (float)Math.Floor(this.bounds.Top + dv.Y);
-                    var yTileTopLeft = this.Context.WorldToTile(new Vector2((float)Math.Floor(this.bounds.Left), top));
-                    var yTileTopRight = this.Context.WorldToTile(new Vector2((float)Math.Ceiling(this.bounds.Right - 1), top));
-                    if (!this.Context.IsPassable(yTileTopLeft, yTileTopRight))
+                    var top = (float)Math.Floor(this.bounds.Top);
+                    var topPlusRaise = (float)Math.Floor(this.bounds.Top + dv.Y);
+                    var search = top;
+                    while (search >= topPlusRaise)
                     {
-                        this.velocity.Y = 0;
-                        this.bounds.Y = this.Context.TileToWorld(yTileTopLeft.X, yTileTopLeft.Y + 1).Y;
+                        var yTopLeft = new Vector2((float)Math.Floor(this.bounds.Left), search);
+                        var yTopRight = new Vector2((float)Math.Ceiling(this.bounds.Right - 1), search);
+                        var yTileTopLeft = this.Context.WorldToTile(yTopLeft);
+                        var yTileTopRight = this.Context.WorldToTile(yTopRight);
+                        if (!this.Context.IsPassable(yTopLeft, yTopRight))
+                        {
+                            this.velocity.Y = 0;
+                            this.bounds.Y = search + 1;
+                            break;
+                        }
+                        search--;
                     }
-                    else
+                    if (search < topPlusRaise)
                     {
+                        // we didn't encounter an obstacle - apply Y velocity
                         this.bounds.Y += dv.Y;
                     }
                 }
@@ -228,9 +238,9 @@ namespace Platform
                 var colour = Color.White;
                 var scale = Vector2.One;
                 var offset = Vector2.Zero;
-                if (this.Z > 0.5f)
+                if (this.Z < 0.5f)
                 {
-                    var alpha = (byte)((1f - (this.Z - 0.5f) * 2) * 255);
+                    var alpha = (byte)((1f - (0.5f - this.Z) * 2) * 255);
                     colour = new Color(alpha, alpha, alpha, alpha);
                     //scale = new Vector2(1f - (this.Z - 0.5f) * 2);
                     //offset = new Vector2((1f - scale.X) * this.sprite.Width / 2, (1f - scale.Y) * this.sprite.Height);

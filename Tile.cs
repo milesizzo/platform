@@ -6,15 +6,10 @@ using System.Linq;
 
 namespace Platform
 {
-    [Flags]
-    public enum MaterialType : int
+    public enum MaterialType
     {
-        None = 0,
-        Dirt = 1,
-        Water = 2,
-        Grass = 4,
-        OneWay = 8,
-        Ladder = 16,
+        None,
+        Dirt,
     }
 
     public interface ITile
