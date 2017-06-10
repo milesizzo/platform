@@ -20,8 +20,10 @@ namespace Platform
         public float JumpPower;
         public float WalkSpeed;
         public float RunSpeed;
+        public float ClimbSpeed;
         public float WalkMaxSpeed;
         public float RunMaxSpeed;
+        public float ClimbMaxSpeed;
         public float WaterModifier;
         public float SwimPower;
         public NamedAnimatedSpriteSheetTemplate Sprite;
@@ -107,8 +109,10 @@ namespace Platform
                 JumpPower = 500f,
                 WalkSpeed = 400f,
                 RunSpeed = 500f,
+                ClimbSpeed = 300f,
                 WalkMaxSpeed = 150f,
                 RunMaxSpeed = 250f,
+                ClimbMaxSpeed = 100f,
                 WaterModifier = 0.4f,
                 SwimPower = 200f,
                 Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat")
@@ -119,8 +123,10 @@ namespace Platform
                 JumpPower = 400f,
                 WalkSpeed = 300f,
                 RunSpeed = 400f,
+                ClimbSpeed = 300f,
                 WalkMaxSpeed = 100f,
                 RunMaxSpeed = 150f,
+                ClimbMaxSpeed = 100f,
                 WaterModifier = 0.4f,
                 SwimPower = 200f,
                 Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.bear")
@@ -131,8 +137,10 @@ namespace Platform
                 JumpPower = 450f,
                 WalkSpeed = 350f,
                 RunSpeed = 450f,
+                ClimbSpeed = 300f,
                 WalkMaxSpeed = 125f,
                 RunMaxSpeed = 175f,
+                ClimbMaxSpeed = 100f,
                 WaterModifier = 0.4f,
                 SwimPower = 200f,
                 Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.pig")
@@ -254,7 +262,7 @@ namespace Platform
             }
             else if (this.player.OnGround)
             {
-                if (keyboard.IsKeyDown(Keys.Space))
+                if (KeyboardHelper.KeyPressed(Keys.Space))
                 {
                     this.player.Velocity = new Vector2(this.player.Velocity.X, -this.character.JumpPower);
                 }
@@ -334,7 +342,7 @@ namespace Platform
                         break;
                 }
             }
-            else if (this.player.Velocity.Y < 0 || this.player.Velocity.Y > 0)// || !this.player.OnGround)
+            else if (this.player.Velocity.Y < 0 || this.player.Velocity.Y > 0)
             {
                 switch (this.playerFacing)
                 {

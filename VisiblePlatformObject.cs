@@ -27,6 +27,7 @@ namespace Platform
         private Vector2 velocity;
         private bool onGround;
         private bool inWater;
+        private bool onLadder;
 
         public VisiblePlatformObject(PlatformContext context) : base(context)
         {
@@ -52,19 +53,21 @@ namespace Platform
 
         public bool InWater { get { return this.inWater; } }
 
+        public bool OnLadder { get { return this.onLadder; } }
+
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
             if (this.IsPhysicsEnabled)
             {
-                var flags = this.Context.GetFlags(this.Context.WorldToTile(new Vector2(this.bounds.Left, this.bounds.Top)));
-                flags |= this.Context.GetFlags(this.Context.WorldToTile(new Vector2(this.bounds.Right, this.bounds.Bottom)));
+                var flags = this.Context.GetFlags(this.Context.WorldToTile(this.bounds.TopLeft), this.Context.WorldToTile(new Vector2(this.bounds.Right - 1, this.bounds.Bottom - 1)));
                 if (!flags.HasFlag(TileFlags.Water) && this.InWater)
                 {
                     this.velocity.Y *= 2;
                 }
                 this.inWater = flags.HasFlag(TileFlags.Water);
+                this.onLadder = flags.HasFlag(TileFlags.Ladder);
 
                 var elapsed = gameTime.GetElapsedSeconds();
                 if (!this.OnGround && this.IsGravityEnabled)
@@ -83,6 +86,7 @@ namespace Platform
 
                 // TODO: check when the magnitude of dv is > tilesize (we will need to check multiple tiles)
 
+                #region Collision detection with other tiles
                 // update the x axis, handle collision
                 if (dv.X > 0)
                 {
@@ -201,10 +205,11 @@ namespace Platform
                         this.bounds.Y += dv.Y;
                     }
                 }
+                #endregion
             }
 
             var bottomLeft = new Vector2(this.bounds.Left, this.bounds.Bottom);
-            var bottomRight = new Vector2(this.bounds.Right - 1, this.bounds.Bottom);
+            var bottomRight = new Vector2(this.bounds.Right, this.bounds.Bottom);
             var tileBottomLeft = this.Context.WorldToTile(bottomLeft);
             var tileBottomRight = this.Context.WorldToTile(bottomRight);
             if (!this.Context.IsPassable(bottomLeft, bottomRight) || this.Context.IsOneWayPlatform(tileBottomLeft, tileBottomRight))
@@ -253,9 +258,11 @@ namespace Platform
 
                     var font = Store.Instance.Fonts("Base", "debug");
                     var sb = new StringBuilder();
-                    sb.AppendLine($"{this.bounds}");
-                    sb.AppendLine($"{this.velocity}");
-                    sb.AppendLine($"{this.OnGround}");
+                    sb.AppendLine($"x = {this.bounds}");
+                    sb.AppendLine($"v = {this.velocity}");
+                    if (this.OnGround) sb.Append("OnGround ");
+                    if (this.OnLadder) sb.Append("OnLadder ");
+                    if (this.InWater) sb.Append("InWater ");
                     var size = font.Font.MeasureString(sb.ToString());
                     renderer.Screen.DrawString(font, sb.ToString(), this.Context.WorldToScreen(this.Position) - new Vector2(0, size.Y), Color.White);
                     //renderer.World.DrawString(Store.Instance.Fonts("Base", "debug"), $"{this.bounds}, {this.velocity}, {this.OnGround}", this.Position - new Vector2(0, 20), Color.White);

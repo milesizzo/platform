@@ -368,58 +368,64 @@ namespace Platform
                     if (mouse.RightButton == ButtonState.Pressed && (!last.HasValue || last.Value.Location != mouseTile || last.Value.Button != GameEngine.Helpers.MouseButton.Right))
                     {
                         var cell = this.Context.Map[mouseTile];
-                        /*switch (this.layer)
+                        if (KeyboardHelper.KeyDown(Keys.LeftShift))
                         {
-                            case TileStencil.Layer.Background:
-                                cell.Background.Clear();
-                                break;
-                            case TileStencil.Layer.Foreground:
-                                cell.Foreground.Clear();
-                                break;
-                            case TileStencil.Layer.Blocking:
-                                cell.Block = null;
-                                break;
+                            this.contextMenu.ClearChildren();
+
+                            var background = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
+                            var label = new Label("Background:", Anchor.TopCenter);
+                            background.AddChild(label);
+                            var backgroundPicker = new TilePicker(this.Context.BlockStore, cell.Background, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
+                            backgroundPicker.OnTileClick += (e, tile) =>
+                            {
+                                backgroundPicker.RemoveChild(e);
+                                cell.Background.Remove(tile);
+                            };
+                            background.AddChild(backgroundPicker);
+                            this.contextMenu.AddChild(background);
+
+                            var foreground = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
+                            label = new Label("Foreground:", Anchor.TopCenter);
+                            foreground.AddChild(label);
+                            var foregroundPicker = new TilePicker(this.Context.BlockStore, cell.Foreground, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
+                            foreground.AddChild(foregroundPicker);
+                            this.contextMenu.AddChild(foreground);
+
+                            var blocking = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
+                            label = new Label("Block:", Anchor.TopCenter);
+                            blocking.AddChild(label);
+                            var blocks = cell.Block == null ? new ITile[0] : new[] { cell.Block };
+                            var blockingPicker = new TilePicker(this.Context.BlockStore, blocks, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
+                            blocking.AddChild(blockingPicker);
+                            this.contextMenu.AddChild(blocking);
+
+                            var button = new Button("Clear", anchor: Anchor.BottomCenter);
+                            button.OnClick += (e) =>
+                            {
+                                this.Context.Map[mouseTile].Background.Clear();
+                                this.Context.Map[mouseTile].Foreground.Clear();
+                                this.Context.Map[mouseTile].Block = null;
+                            };
+                            this.contextMenu.AddChild(button);
+
+                            this.ShowUI(this.contextMenu);
                         }
-                        this.lastPlacement = new TilePlacement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Right };*/
-                        this.contextMenu.ClearChildren();
-
-                        var background = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
-                        var label = new Label("Background:", Anchor.TopCenter);
-                        background.AddChild(label);
-                        var backgroundPicker = new TilePicker(this.Context.BlockStore, cell.Background, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
-                        backgroundPicker.OnTileClick += (e, tile) =>
+                        else
                         {
-                            backgroundPicker.RemoveChild(e);
-                            cell.Background.Remove(tile);
-                        };
-                        background.AddChild(backgroundPicker);
-                        this.contextMenu.AddChild(background);
-
-                        var foreground = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
-                        label = new Label("Foreground:", Anchor.TopCenter);
-                        foreground.AddChild(label);
-                        var foregroundPicker = new TilePicker(this.Context.BlockStore, cell.Foreground, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
-                        foreground.AddChild(foregroundPicker);
-                        this.contextMenu.AddChild(foreground);
-
-                        var blocking = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
-                        label = new Label("Block:", Anchor.TopCenter);
-                        blocking.AddChild(label);
-                        var blocks = cell.Block == null ? new ITile[0] : new[] { cell.Block };
-                        var blockingPicker = new TilePicker(this.Context.BlockStore, blocks, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
-                        blocking.AddChild(blockingPicker);
-                        this.contextMenu.AddChild(blocking);
-
-                        var button = new Button("Clear", anchor: Anchor.BottomCenter);
-                        button.OnClick += (e) =>
-                        {
-                            this.Context.Map[mouseTile].Background.Clear();
-                            this.Context.Map[mouseTile].Foreground.Clear();
-                            this.Context.Map[mouseTile].Block = null;
-                        };
-                        this.contextMenu.AddChild(button);
-
-                        this.ShowUI(this.contextMenu);
+                            switch (this.layer)
+                            {
+                                case TileStencil.Layer.Background:
+                                    cell.Background.Clear();
+                                    break;
+                                case TileStencil.Layer.Foreground:
+                                    cell.Foreground.Clear();
+                                    break;
+                                case TileStencil.Layer.Blocking:
+                                    cell.Block = null;
+                                    break;
+                            }
+                            this.lastPlacement = new TilePlacement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Right };
+                        }
                     }
                     if (!MouseHelper.ButtonDown(GameEngine.Helpers.MouseButton.Left) && !MouseHelper.ButtonDown(GameEngine.Helpers.MouseButton.Right))
                     {

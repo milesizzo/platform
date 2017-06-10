@@ -201,6 +201,19 @@ namespace Platform
             return result;
         }
 
+        public TileFlags GetFlags(Point topLeft, Point bottomRight)
+        {
+            var result = TileFlags.None;
+            for (var y = topLeft.Y; y <= bottomRight.Y; y++)
+            {
+                for (var x = topLeft.X; x <= bottomRight.X; x++)
+                {
+                    result |= this.GetFlags(new Point(x, y));
+                }
+            }
+            return result;
+        }
+
         public bool IsOneWayPlatform(int x, int y)
         {
             return this.GetFlags(new Point(x, y)).HasFlag(TileFlags.OneWay);
@@ -208,17 +221,17 @@ namespace Platform
 
         public bool IsOneWayPlatform(Point first, Point second)
         {
-            for (var y = first.Y; y <= second.Y; y++)
-            {
-                for (var x = first.X; x <= second.X; x++)
-                {
-                    if (this.IsOneWayPlatform(x, y))
-                    {
-                        return true;
-                    }
-                }
-            }
-            return false;
+            return this.GetFlags(first, second).HasFlag(TileFlags.OneWay);
+        }
+
+        public bool IsLadder(int x, int y)
+        {
+            return this.GetFlags(new Point(x, y)).HasFlag(TileFlags.Ladder);
+        }
+
+        public bool IsLadder(Point first, Point second)
+        {
+            return this.GetFlags(first, second).HasFlag(TileFlags.Ladder);
         }
 
         public bool IsPassable(Point p)
