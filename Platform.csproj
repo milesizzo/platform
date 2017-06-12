@@ -72,7 +72,8 @@
     <Compile Include="BlockStore.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterObject.cs" />
-    <Compile Include="Controller.cs" />
+    <Compile Include="Controllers\Controller.cs" />
+    <Compile Include="Controllers\HumanController.cs" />
     <Compile Include="Editor\StencilPicker.cs" />
     <Compile Include="Editor\TilePicker.cs" />
     <Compile Include="Editor\TileStencil.cs" />

@@ -7,22 +7,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Platform
+namespace Platform.Controllers
 {
-    public interface IAction
+    public enum HumanActions
     {
-        bool IsTapped { get; }
-
-        bool IsHeld { get; }
-    }
-
-    public class NoAction : IAction
-    {
-        public static readonly IAction Instance = new NoAction();
-
-        public bool IsTapped { get { return false; } }
-
-        public bool IsHeld { get { return false; } }
+        WalkLeft,
+        WalkRight,
+        RunModifier,
+        Squat,
+        Jump,
+        Swim,
     }
 
     public class KeyboardAction : IAction
@@ -59,69 +53,6 @@ namespace Platform
         }
     }
 
-    public class AndAction : IAction
-    {
-        private readonly List<IAction> actions = new List<IAction>();
-
-        public AndAction(params IAction[] actions)
-        {
-            this.actions.AddRange(actions);
-        }
-
-        public bool IsHeld
-        {
-            get { return this.actions.All(a => a.IsHeld); }
-        }
-
-        public bool IsTapped
-        {
-            get { return this.actions.All(a => a.IsTapped); }
-        }
-    }
-
-    public class OrAction : IAction
-    {
-        private readonly List<IAction> actions = new List<IAction>();
-
-        public OrAction(params IAction[] actions)
-        {
-            this.actions.AddRange(actions);
-        }
-
-        public bool IsHeld
-        {
-            get { return this.actions.Any(a => a.IsHeld); }
-        }
-
-        public bool IsTapped
-        {
-            get { return this.actions.Any(a => a.IsTapped); }
-        }
-    }
-
-    public abstract class CharacterController
-    {
-        protected abstract CharacterObject.Actions GetAction(GameTime gameTime, CharacterObject.Actions input);
-
-        protected abstract CharacterObject.Facing GetDirection(GameTime gameTime, CharacterObject.Facing input);
-
-        public virtual void Update(GameTime gameTime, CharacterObject obj)
-        {
-            obj.Action = this.GetAction(gameTime, obj.Action);
-            obj.Direction = this.GetDirection(gameTime, obj.Direction);
-        }
-    }
-
-    public enum HumanActions
-    {
-        WalkLeft,
-        WalkRight,
-        RunModifier,
-        Squat,
-        Jump,
-        Swim,
-    }
-
     public class HumanCharacterController : CharacterController
     {
         private readonly Dictionary<HumanActions, IAction> actions = new Dictionary<HumanActions, IAction>();
@@ -143,22 +74,17 @@ namespace Platform
             }
         }
 
-        protected override CharacterObject.Facing GetDirection(GameTime gameTime, CharacterObject.Facing input)
+        protected override void Brain(GameTime gameTime, CharacterObject obj)
         {
-            var facing = input;
             if (this[HumanActions.WalkLeft].IsHeld)
             {
-                facing = CharacterObject.Facing.Left;
+                obj.Direction = CharacterObject.Facing.Left;
             }
             if (this[HumanActions.WalkRight].IsHeld)
             {
-                facing = CharacterObject.Facing.Right;
+                obj.Direction = CharacterObject.Facing.Right;
             }
-            return facing;
-        }
 
-        protected override CharacterObject.Actions GetAction(GameTime gameTime, CharacterObject.Actions input)
-        {
             var action = CharacterObject.Actions.None;
             if (this[HumanActions.Jump].IsTapped)
             {
@@ -180,7 +106,7 @@ namespace Platform
             {
                 action |= CharacterObject.Actions.Run;
             }
-            return action;
+            obj.Action = action;
         }
     }
 }
