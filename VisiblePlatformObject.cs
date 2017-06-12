@@ -212,7 +212,7 @@ namespace Platform
             }
 
             var bottomLeft = new Vector2(this.bounds.Left, this.bounds.Bottom);
-            var bottomRight = new Vector2((float)Math.Floor(this.bounds.Right), this.bounds.Bottom);
+            var bottomRight = new Vector2((float)Math.Ceiling(this.bounds.Right - 1), this.bounds.Bottom);
             var tileBottomLeft = this.Context.WorldToTile(bottomLeft);
             var tileBottomRight = this.Context.WorldToTile(bottomRight);
             if (!this.Context.IsPassable(bottomLeft, bottomRight) || this.Context.IsOneWayPlatform(tileBottomLeft, tileBottomRight))

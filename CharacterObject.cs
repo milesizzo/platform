@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
@@ -8,11 +9,6 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
-    public class CharacterKeyMapping
-    {
-        //
-    }
-
     public class CharacterObject : VisiblePlatformObject
     {
         [Flags]
@@ -36,6 +32,7 @@ namespace Platform
         private Facing facing;
         private Actions actions;
         private string currentAnimation;
+        private CharacterController controller;
 
         public CharacterObject(PlatformContext context) : base(context)
         {
@@ -43,6 +40,7 @@ namespace Platform
             this.actions = Actions.None;
             this.currentAnimation = null;
             this.character = null;
+            this.controller = null;
         }
 
         public Character Character
@@ -57,6 +55,12 @@ namespace Platform
                 }
                 this.currentAnimation = null;
             }
+        }
+
+        public CharacterController Controller
+        {
+            get { return this.controller; }
+            set { this.controller = value; }
         }
 
         public Actions Action
@@ -82,6 +86,8 @@ namespace Platform
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
+
+            this.controller?.Update(gameTime, this);
 
             var elapsed = gameTime.GetElapsedSeconds();
 
