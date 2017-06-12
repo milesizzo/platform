@@ -70,6 +70,8 @@
     <Compile Include="AccidentalNoise\Util\SMappingRanges.cs" />
     <Compile Include="BasePlatformGameScene.cs" />
     <Compile Include="BlockStore.cs" />
+    <Compile Include="Character.cs" />
+    <Compile Include="CharacterObject.cs" />
     <Compile Include="Editor\StencilPicker.cs" />
     <Compile Include="Editor\TilePicker.cs" />
     <Compile Include="Editor\TileStencil.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="TerrainGenerator.cs" />
     <Compile Include="TileMap.cs" />
     <Compile Include="Tile.cs" />
+    <Compile Include="Trigger.cs" />
     <Compile Include="VisiblePlatformObject.cs" />
   </ItemGroup>
   <ItemGroup>

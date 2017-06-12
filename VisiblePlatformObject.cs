@@ -45,7 +45,10 @@ namespace Platform
             set
             {
                 this.sprite = value;
-                this.bounds = new RectangleF(this.Position, new Size2(value.Width, value.Height));
+                if (this.bounds == RectangleF.Empty)
+                {
+                    this.bounds = new RectangleF(this.Position, new Size2(value.Width, value.Height));
+                }
             }
         }
 
@@ -209,7 +212,7 @@ namespace Platform
             }
 
             var bottomLeft = new Vector2(this.bounds.Left, this.bounds.Bottom);
-            var bottomRight = new Vector2(this.bounds.Right, this.bounds.Bottom);
+            var bottomRight = new Vector2((float)Math.Floor(this.bounds.Right), this.bounds.Bottom);
             var tileBottomLeft = this.Context.WorldToTile(bottomLeft);
             var tileBottomRight = this.Context.WorldToTile(bottomRight);
             if (!this.Context.IsPassable(bottomLeft, bottomRight) || this.Context.IsOneWayPlatform(tileBottomLeft, tileBottomRight))
@@ -225,6 +228,18 @@ namespace Platform
         public bool IsVisible()
         {
             return this.Context.VisibleBounds.Intersects(this.bounds);
+        }
+
+        protected virtual StringBuilder DebugData()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"x = {this.bounds}");
+            sb.AppendLine($"v = {this.velocity}");
+            if (this.OnGround) sb.Append("OnGround ");
+            if (this.OnLadder) sb.Append("OnLadder ");
+            if (this.InWater) sb.Append("InWater ");
+            sb.AppendLine();
+            return sb;
         }
 
         public override void Draw(Renderer renderer, GameTime gameTime)
@@ -257,14 +272,9 @@ namespace Platform
                     renderer.World.DrawRectangle(this.bounds, Color.White);
 
                     var font = Store.Instance.Fonts("Base", "debug");
-                    var sb = new StringBuilder();
-                    sb.AppendLine($"x = {this.bounds}");
-                    sb.AppendLine($"v = {this.velocity}");
-                    if (this.OnGround) sb.Append("OnGround ");
-                    if (this.OnLadder) sb.Append("OnLadder ");
-                    if (this.InWater) sb.Append("InWater ");
-                    var size = font.Font.MeasureString(sb.ToString());
-                    renderer.Screen.DrawString(font, sb.ToString(), this.Context.WorldToScreen(this.Position) - new Vector2(0, size.Y), Color.White);
+                    var sb = this.DebugData().ToString();
+                    var size = font.Font.MeasureString(sb);
+                    renderer.Screen.DrawString(font, sb, this.Context.WorldToScreen(this.Position) - new Vector2(0, size.Y), Color.White);
                     //renderer.World.DrawString(Store.Instance.Fonts("Base", "debug"), $"{this.bounds}, {this.velocity}, {this.OnGround}", this.Position - new Vector2(0, 20), Color.White);
                 }
             }

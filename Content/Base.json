@@ -162,6 +162,10 @@
       "texture": "Characters/Cat",
       "width": 20,
       "height": 20,
+      "origin": {
+        "x": 6,
+        "y": 4
+      },
       "border": 0,
       "fps": 24,
       "frames": 34,
@@ -263,6 +267,10 @@
       "texture": "Characters/Bear",
       "width": 20,
       "height": 20,
+      "origin": {
+        "x": 6,
+        "y": 4
+      },
       "border": 0,
       "fps": 24,
       "frames": 34,
@@ -364,6 +372,10 @@
       "texture": "Characters/Pig",
       "width": 20,
       "height": 20,
+      "origin": {
+        "x": 6,
+        "y": 4
+      },
       "border": 0,
       "fps": 24,
       "frames": 34,

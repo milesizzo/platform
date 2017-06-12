@@ -487,7 +487,7 @@ namespace Platform
                             depth -= diff;
                         }
                     }
-                    this.BlockStore.DrawTile(renderer.World, pos, cell.Block, 0.75f, Color.White);
+                    this.BlockStore.DrawTile(renderer.World, pos, cell.Block, 0.25f, Color.White);
                     if (AbstractObject.DebugInfo && cell.Block != null)
                     {
                         Store.Instance.Sprites<ISpriteTemplate>("Base", "white-16x16").DrawSprite(renderer.World, 0, pos, Color.Red, 0, Vector2.One, SpriteEffects.None, 0.019f);

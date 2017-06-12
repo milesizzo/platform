@@ -13,47 +13,19 @@ using CommonLibrary;
 
 namespace Platform
 {
-    public class Character : ITemplate
-    {
-        private readonly string name;
-
-        public float JumpPower;
-        public float WalkSpeed;
-        public float RunSpeed;
-        public float ClimbSpeed;
-        public float WalkMaxSpeed;
-        public float RunMaxSpeed;
-        public float ClimbMaxSpeed;
-        public float WaterModifier;
-        public float SwimPower;
-        public NamedAnimatedSpriteSheetTemplate Sprite;
-
-        public Character(string name)
-        {
-            this.name = name;
-        }
-
-        public string Name { get { return this.name; } }
-    }
-
-    public class CharacterStore : TemplateStore<Character>
-    {
-        //
-    }
-
     public class PlatformGameScene : BasePlatformGameScene
     {
-        private enum Facing
+        /*private enum Facing
         {
             Left,
             Right
-        }
+        }*/
 
-        private VisiblePlatformObject player;
+        private CharacterObject player;
         private CharacterStore characters = new CharacterStore();
-        private Character character;
-        private string playerAnimation;
-        private Facing playerFacing;
+        //private Character character;
+        //private string playerAnimation;
+        //private Facing playerFacing;
         private bool godMode = false;
 
         public PlatformGameScene(string name, GraphicsDevice graphics) : base(name, graphics)
@@ -115,7 +87,8 @@ namespace Platform
                 ClimbMaxSpeed = 100f,
                 WaterModifier = 0.4f,
                 SwimPower = 200f,
-                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat")
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.cat"),
+                Bounds = new RectangleF(Point2.Zero, new Size2(8, 16)),
             });
 
             this.characters.GetOrAdd("Bear", (name) => new Character(name)
@@ -129,7 +102,8 @@ namespace Platform
                 ClimbMaxSpeed = 100f,
                 WaterModifier = 0.4f,
                 SwimPower = 200f,
-                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.bear")
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.bear"),
+                Bounds = new RectangleF(Point2.Zero, new Size2(8, 16)),
             });
 
             this.characters.GetOrAdd("Pig", (name) => new Character(name)
@@ -143,14 +117,17 @@ namespace Platform
                 ClimbMaxSpeed = 100f,
                 WaterModifier = 0.4f,
                 SwimPower = 200f,
-                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.pig")
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.pig"),
+                Bounds = new RectangleF(Point2.Zero, new Size2(8, 16)),
             });
 
-            this.character = this.characters["Cat"];
+            //this.character = this.characters["Cat"];
 
-            this.player = new VisiblePlatformObject(this.Context);
+            this.player = new CharacterObject(this.Context);
+            this.player.Character = this.characters["Cat"];
+            //this.player.Bounds = new RectangleF(Point2.Zero, new Size2(8, 16));
             this.player.Position3D = new Vector3(1280, startY, 0.5f);
-            this.playerFacing = Facing.Right;
+            //this.playerFacing = Facing.Right;
             this.player.IsGravityEnabled = !this.godMode;
             this.Context.AddObject(this.player);
             this.Context.AttachLightSource(this.player, new Light
@@ -189,18 +166,15 @@ namespace Platform
 
             if (KeyboardHelper.KeyPressed(Keys.D1))
             {
-                this.character = this.characters["Cat"];
-                this.playerAnimation = null;
+                this.player.Character = this.characters["Cat"];
             }
             if (KeyboardHelper.KeyPressed(Keys.D2))
             {
-                this.character = this.characters["Bear"];
-                this.playerAnimation = null;
+                this.player.Character = this.characters["Bear"];
             }
             if (KeyboardHelper.KeyPressed(Keys.D3))
             {
-                this.character = this.characters["Pig"];
-                this.playerAnimation = null;
+                this.player.Character = this.characters["Pig"];
             }
 
             if (KeyboardHelper.KeyPressed(Keys.F12))
@@ -253,6 +227,33 @@ namespace Platform
                 }
             }
 
+            var action = CharacterObject.Actions.None;
+            if (KeyboardHelper.KeyPressed(Keys.Space))
+            {
+                action |= CharacterObject.Actions.Jump;
+                action |= CharacterObject.Actions.Swim;
+            }
+            if (KeyboardHelper.KeyDown(Keys.S))
+            {
+                action |= CharacterObject.Actions.Squat;
+            }
+            if (KeyboardHelper.KeyDown(Keys.D))
+            {
+                action |= CharacterObject.Actions.Walk;
+                this.player.Direction = CharacterObject.Facing.Right;
+            }
+            if (KeyboardHelper.KeyDown(Keys.A))
+            {
+                action |= CharacterObject.Actions.Walk;
+                this.player.Direction = CharacterObject.Facing.Left;
+            }
+            if (action.HasFlag(CharacterObject.Actions.Walk) && (KeyboardHelper.KeyDown(Keys.LeftShift) || KeyboardHelper.KeyDown(Keys.RightShift)))
+            {
+                action |= CharacterObject.Actions.Run;
+            }
+            this.player.Action = action;
+
+            /*
             if (this.player.InWater)
             {
                 if (KeyboardHelper.KeyPressed(Keys.Space))
@@ -416,6 +417,7 @@ namespace Platform
                 this.player.Sprite = this.character.Sprite.GetAnimation(animation);
                 this.playerAnimation = animation;
             }
+            */
             this.Camera.LookAt(this.player.Position);
         }
 
@@ -429,7 +431,7 @@ namespace Platform
             text.AppendLine($"Ambient light: {this.Context.AmbientLight}");
             text.AppendLine($"   Background: {this.Context.AmbientBackground}");
             text.AppendLine($" Time in game: {this.Context.Time}");
-            text.AppendLine($"    Character: {this.character.Name}");
+            text.AppendLine($"    Character: {this.player.Character?.Name}");
             Store.Instance.Fonts("Base", "debug").DrawString(renderer.Screen, new Vector2(0, 0), text.ToString(), Color.White);
         }
     }

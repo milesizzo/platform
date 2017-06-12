@@ -6,7 +6,7 @@ namespace Platform
 {
     public class PlatformObject : AbstractObject
     {
-        protected RectangleF bounds;
+        protected RectangleF bounds = RectangleF.Empty;
         public float Z = 0f;
 
         public PlatformObject(PlatformContext context) : base(context)
@@ -30,7 +30,11 @@ namespace Platform
             }
         }
 
-        public RectangleF Bounds { get { return this.bounds; } }
+        public RectangleF Bounds
+        {
+            get { return this.bounds; }
+            set { this.bounds = value; }
+        }
 
         public new PlatformContext Context
         {
