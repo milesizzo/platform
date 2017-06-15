@@ -11,6 +11,7 @@ using MonoGame.Extended;
 using GameEngine.Helpers;
 using CommonLibrary;
 using Platform.Controllers;
+using System.IO;
 
 namespace Platform
 {
@@ -26,7 +27,18 @@ namespace Platform
 
         protected override PlatformContext CreateContext()
         {
-            return new PlatformContext(this.Camera, 2048, 1024);
+            PlatformContext context;
+            if (File.Exists("default.ctx"))
+            {
+                context = BinPlatformContextSerializer.Load("default.ctx");
+            }
+            else
+            {
+                context = new PlatformContext();
+                context.Map = BinTileMapSerializer.Load("editor.map");
+            }
+            context.Camera = this.Camera;
+            return context;
         }
 
         private IGameObject MakeTree(Point basePos, float z, string asset)
@@ -54,7 +66,7 @@ namespace Platform
         {
             base.SetUp();
 
-            this.Context.Map = BinTileMapSerializer.Load("editor.map");
+            //this.Context.Map = BinTileMapSerializer.Load("editor.map");
             /*if (File.Exists("landscape.map"))
             {
                 this.Context.Map = BinTileMapSerializer.Load("landscape.map");
@@ -132,6 +144,19 @@ namespace Platform
                 RelativePosition = new Vector2(this.player.Bounds.Width / 2, this.player.Bounds.Height / 2),
                 Colour = Color.Yellow
             });
+
+            /*var npc = new CharacterObject(this.Context);
+            npc.Character = this.characters["Bear"];
+            npc.Controller = new ComputerController();
+            npc.Position3D = new Vector3(1280, startY, 0.5f);
+            npc.IsGravityEnabled = true;
+            npc.Direction = CharacterObject.Facing.Right;
+            this.Context.AddObject(npc);
+            this.Context.AttachLightSource(npc, new Light
+            {
+                RelativePosition = new Vector2(this.player.Bounds.Width / 2, this.player.Bounds.Height / 2),
+                Colour = Color.White
+            });*/
         }
 
         public override void Update(GameTime gameTime)

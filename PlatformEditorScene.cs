@@ -27,20 +27,21 @@ namespace Platform
     public class PlatformEditorScene : BasePlatformGameScene
     {
         private const string DefaultMap = "editor.map";
-        private TileStencil curr = null;
-        private TileStencil.Layer layer = TileStencil.Layer.Blocking;
         private Vector2? pan = null;
         private readonly List<TileStencil> stencils = new List<TileStencil>();
         private Entity mainMenu = null;
         private Entity contextMenu = null;
         private Entity currentUI = null;
 
-        private struct TilePlacement
+        private IPlacementMode mode;
+
+        private struct Placement
         {
             public Point Location;
             public GameEngine.Helpers.MouseButton Button;
         }
-        private TilePlacement? lastPlacement = null;
+        private Placement? lastPlacement = null;
+        private TileStencil.Layer lastLayer = TileStencil.Layer.Blocking;
 
         public PlatformEditorScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
@@ -48,7 +49,17 @@ namespace Platform
 
         protected override PlatformContext CreateContext()
         {
-            var context = new PlatformContext(this.Camera, 256, 128);
+            PlatformContext context;
+            if (File.Exists("default.ctx"))
+            {
+                context = BinPlatformContextSerializer.Load("default.ctx");
+            }
+            else
+            {
+                context = new PlatformContext();
+                context.Map = BinTileMapSerializer.Load(DefaultMap);
+            }
+            context.Camera = this.Camera;
             context.Enabled = false;
             return context;
         }
@@ -84,6 +95,13 @@ namespace Platform
                 this.SaveBlockStore();
             };
             fileMenu.panel.AddChild(saveBlockStoreButton);
+
+            var saveContextButton = new Button("Save context", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
+            saveContextButton.OnClick += (b) =>
+            {
+                BinPlatformContextSerializer.Save("default.ctx", this.Context);
+            };
+            fileMenu.panel.AddChild(saveContextButton);
 
             // 'save map' area
             var savePanel = new Panel(new Vector2(600, 100), skin: PanelSkin.Simple, anchor: Anchor.BottomLeft);
@@ -124,10 +142,11 @@ namespace Platform
             tilesMenu.panel.AddChild(tilePicker);
             var tileSettingsPanel = new Panel(new Vector2(300, 0), skin: PanelSkin.Simple, anchor: Anchor.CenterRight);
             tilesMenu.panel.AddChild(tileSettingsPanel);
-            tilePicker.OnTileClick += (e, tile) =>
+            tilePicker.OnItemClick += (e, tile) =>
             {
-                this.curr = new TileStencil();
-                this.curr[0, 0] = tile;
+                var curr = new TileStencil();
+                curr[0, 0] = tile;
+                this.mode = new TilePlacement(curr, this.lastLayer);
                 tileSettingsPanel.ClearChildren();
                 var asTile = tile as Tile;
                 if (asTile != null)
@@ -163,7 +182,7 @@ namespace Platform
             var stencilPicker = new StencilPicker(this.Context.BlockStore, this.stencils);
             stencilPicker.OnStencilClick += (e, stencil) =>
             {
-                this.curr = stencil;
+                this.mode = new TilePlacement(stencil, this.lastLayer);
             };
             stencilPicker.Scrollbar.Max = (uint)(this.mainMenu.Size.Y * 4); // we have to guess at the maximum height...
             stencilMenu.panel.AddChild(stencilPicker);
@@ -191,7 +210,7 @@ namespace Platform
                 var deleteTile = new Button("Delete tile", anchor: Anchor.AutoCenter);
                 deleteTile.OnClick += (entity) =>
                 {
-                    var asTile = materialTilePicker.SelectedTile as Tile;
+                    var asTile = materialTilePicker.SelectedItem as Tile;
                     if (asTile != null)
                     {
                         materialTilePicker.RemoveSelected();
@@ -207,13 +226,13 @@ namespace Platform
                         this.Context.BlockStore.Tiles.Select((s, i) => new Tile(i)),
                         size: new Vector2(1000, 900),
                         anchor: Anchor.TopCenter);
-                    materialNewTilePicker.OnTileClick += (picker, tile) =>
+                    materialNewTilePicker.OnItemClick += (picker, tile) =>
                     {
                         var asTile = tile as Tile;
                         if (asTile != null)
                         {
                             this.Context.BlockStore.Materials[material].Add(asTile.Id);
-                            materialTilePicker.AddTile(tile);
+                            materialTilePicker.AddItem(tile);
                         }
                         UserInterface.Active.RemoveEntity(materialNewTilePicker);
                     };
@@ -223,12 +242,18 @@ namespace Platform
             };
             materialsMenu.panel.AddChild(materialList);
 
-            UserInterface.Active.AddEntity(this.mainMenu);
+            // lights menu
+            var lightsMenu = (this.mainMenu as PanelTabs).AddTab("Lights", PanelSkin.Default);
+            var candleButton = new Button("Candle", anchor: Anchor.AutoCenter);
+            candleButton.OnClick += (e) =>
+            {
+                var light = new Light();
+                light.Animation = Light.Candle;
+                this.mode = new LightPlacement(light);
+            };
+            lightsMenu.panel.AddChild(candleButton);
 
-            // context menu
-            this.contextMenu = new Panel(new Vector2(900, 1000));
-            this.contextMenu.Visible = false;
-            UserInterface.Active.AddEntity(this.contextMenu);
+            UserInterface.Active.AddEntity(this.mainMenu);
         }
 
         public override void SetUp()
@@ -273,33 +298,33 @@ namespace Platform
             }
         }
 
-        private Point MouseToTile
-        {
-            get
-            {
-                return this.Context.WorldToTile(this.MouseToWorld);
-            }
-        }
-
         private void ShowUI(Entity entity)
         {
             if (this.currentUI != null)
             {
                 this.currentUI.Visible = false;
+                if (this.contextMenu != null)
+                {
+                    UserInterface.Active.RemoveEntity(this.contextMenu);
+                    this.contextMenu = null;
+                }
+                this.currentUI = null;
             }
-            this.currentUI = entity;
-            this.currentUI.Visible = true;
+            if (entity != null)
+            {
+                this.currentUI = entity;
+                this.currentUI.Visible = true;
+            }
         }
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            var mouse = Mouse.GetState();
             if (this.currentUI != null && this.currentUI.Visible)
             {
                 if (KeyboardHelper.KeyPressed(Keys.Escape))
                 {
-                    this.currentUI.Visible = false;
+                    this.ShowUI(null);
                 }
             }
             else
@@ -317,17 +342,22 @@ namespace Platform
                 }
 
                 // pick layer
-                if (KeyboardHelper.KeyPressed(Keys.D1))
+                var asTilePlacement = this.mode as TilePlacement;
+                if (asTilePlacement != null)
                 {
-                    this.layer = TileStencil.Layer.Background;
-                }
-                if (KeyboardHelper.KeyPressed(Keys.D2))
-                {
-                    this.layer = TileStencil.Layer.Foreground;
-                }
-                if (KeyboardHelper.KeyPressed(Keys.D3))
-                {
-                    this.layer = TileStencil.Layer.Blocking;
+                    if (KeyboardHelper.KeyPressed(Keys.D1))
+                    {
+                        this.lastLayer = TileStencil.Layer.Background;
+                    }
+                    if (KeyboardHelper.KeyPressed(Keys.D2))
+                    {
+                        this.lastLayer = TileStencil.Layer.Foreground;
+                    }
+                    if (KeyboardHelper.KeyPressed(Keys.D3))
+                    {
+                        this.lastLayer = TileStencil.Layer.Blocking;
+                    }
+                    asTilePlacement.Layer = this.lastLayer;
                 }
 
                 // pan camera
@@ -353,78 +383,30 @@ namespace Platform
                 this.Camera.Zoom = MathHelper.Max(0.1f, this.Camera.Zoom + (float)(scroll * gameTime.ElapsedGameTime.TotalSeconds * 10));
 
                 // tile placement
-                var mouseTile = this.MouseToTile;
-                if (this.Context.IsInBounds(mouseTile))
+                if (this.mode != null)
                 {
+                    var mouse = Mouse.GetState();
+                    var mouseWorld = this.MouseToWorld;
+                    var mouseTile = this.Context.WorldToTile(mouseWorld);
                     var last = this.lastPlacement;
                     if (mouse.LeftButton == ButtonState.Pressed && (!last.HasValue || last.Value.Location != mouseTile || last.Value.Button != GameEngine.Helpers.MouseButton.Left))
                     {
-                        if (this.curr != null)
-                        {
-                            this.curr.Stamp(this.Context.Map, mouseTile, this.layer);
-                        }
-                        this.lastPlacement = new TilePlacement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Left };
+                        this.mode.Stamp(this.Context, mouseWorld);
+                        this.lastPlacement = new Placement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Left };
                     }
                     if (mouse.RightButton == ButtonState.Pressed && (!last.HasValue || last.Value.Location != mouseTile || last.Value.Button != GameEngine.Helpers.MouseButton.Right))
                     {
-                        var cell = this.Context.Map[mouseTile];
                         if (KeyboardHelper.KeyDown(Keys.LeftShift))
                         {
-                            this.contextMenu.ClearChildren();
-
-                            var background = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
-                            var label = new Label("Background:", Anchor.TopCenter);
-                            background.AddChild(label);
-                            var backgroundPicker = new TilePicker(this.Context.BlockStore, cell.Background, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
-                            backgroundPicker.OnTileClick += (e, tile) =>
-                            {
-                                backgroundPicker.RemoveChild(e);
-                                cell.Background.Remove(tile);
-                            };
-                            background.AddChild(backgroundPicker);
-                            this.contextMenu.AddChild(background);
-
-                            var foreground = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
-                            label = new Label("Foreground:", Anchor.TopCenter);
-                            foreground.AddChild(label);
-                            var foregroundPicker = new TilePicker(this.Context.BlockStore, cell.Foreground, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
-                            foreground.AddChild(foregroundPicker);
-                            this.contextMenu.AddChild(foreground);
-
-                            var blocking = new Panel(new Vector2(0, 256), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
-                            label = new Label("Block:", Anchor.TopCenter);
-                            blocking.AddChild(label);
-                            var blocks = cell.Block == null ? new ITile[0] : new[] { cell.Block };
-                            var blockingPicker = new TilePicker(this.Context.BlockStore, blocks, new Vector2(0, 128), Anchor.BottomCenter, overflow: false);
-                            blocking.AddChild(blockingPicker);
-                            this.contextMenu.AddChild(blocking);
-
-                            var button = new Button("Clear", anchor: Anchor.BottomCenter);
-                            button.OnClick += (e) =>
-                            {
-                                this.Context.Map[mouseTile].Background.Clear();
-                                this.Context.Map[mouseTile].Foreground.Clear();
-                                this.Context.Map[mouseTile].Block = null;
-                            };
-                            this.contextMenu.AddChild(button);
-
-                            this.ShowUI(this.contextMenu);
+                            var menu = this.mode.ContextMenu(this.Context, mouseWorld);
+                            UserInterface.Active.AddEntity(this.contextMenu);
+                            this.ShowUI(menu);
+                            this.contextMenu = menu;
                         }
                         else
                         {
-                            switch (this.layer)
-                            {
-                                case TileStencil.Layer.Background:
-                                    cell.Background.Clear();
-                                    break;
-                                case TileStencil.Layer.Foreground:
-                                    cell.Foreground.Clear();
-                                    break;
-                                case TileStencil.Layer.Blocking:
-                                    cell.Block = null;
-                                    break;
-                            }
-                            this.lastPlacement = new TilePlacement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Right };
+                            this.mode.Clear(this.Context, mouseWorld);
+                            this.lastPlacement = new Placement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Right };
                         }
                     }
                     if (!MouseHelper.ButtonDown(GameEngine.Helpers.MouseButton.Left) && !MouseHelper.ButtonDown(GameEngine.Helpers.MouseButton.Right))
@@ -442,27 +424,6 @@ namespace Platform
         public override void Draw(Renderer renderer, GameTime gameTime)
         {
             var font = Store.Instance.Fonts("Base", "debug");
-            var mouseTile = this.MouseToTile;
-            if (this.Context.IsInBounds(mouseTile) && (this.currentUI == null || !this.currentUI.Visible))
-            {
-                if (this.curr != null)
-                {
-                    var world = this.Context.TileToWorld(mouseTile);
-                    this.curr.Draw(renderer.World, world, Vector2.One, Color.White, this.Context.BlockStore);
-                    //this.Context.BlockStore.DrawTile(renderer.World, world, this.currTile, 0.1f, Color.White);
-                    renderer.World.DrawRectangle(world, new Size2(this.Context.BlockStore.TileSize, this.Context.BlockStore.TileSize), Color.White);
-                }
-                var tileText = new StringBuilder();
-                var cell = this.Context.Map[mouseTile];
-                var flags = this.Context.GetFlags(mouseTile);
-                tileText.AppendLine($"   Position: {mouseTile}");
-                tileText.AppendLine($" Foreground: " + string.Join(",", cell.Foreground.Select(t => t.DebugString)));
-                tileText.AppendLine($" Background: " + string.Join(",", cell.Background.Select(t => t.DebugString)));
-                tileText.AppendLine($"      Block: " + (cell.Block == null ? "null" : cell.Block.DebugString));
-                tileText.AppendLine($"      Flags: " + flags);
-                font.DrawString(renderer.Screen, new Vector2(0, 800), tileText.ToString(), Color.Wheat);
-            }
-
             var mouse = Mouse.GetState();
             var text = new StringBuilder();
             text.AppendLine($"Camera:");
@@ -470,21 +431,24 @@ namespace Platform
             text.AppendLine($"  Position: {this.Camera.Position}");
             text.AppendLine();
             text.AppendLine($"Time in game   : {this.Context.Time}");
-            text.AppendLine($"Layer          : {this.layer}");
             text.AppendLine($"Mouse (screen) : {mouse.X}, {mouse.Y}");
             text.AppendLine($"Mouse (world)  : {this.MouseToWorld}");
             font.DrawString(renderer.Screen, new Vector2(0, 0), text.ToString(), Color.White);
 
-            if (this.curr != null)
+            if (this.mode != null && this.currentUI == null)
             {
-                font.DrawString(renderer.Screen, new Vector2(0, 600), "Current: ", Color.White);
-                var size = font.Font.MeasureString("Current: ");
-                //this.Context.BlockStore.DrawTile(renderer.Screen, new Vector2(size.X, 600), this.currTile, 0f, Color.White);
-                this.curr.Draw(renderer.Screen, new Vector2(size.X, 600), new Vector2(2f, 2f), Color.White, this.Context.BlockStore);
+                this.mode.DrawDebug(this.Context, this.MouseToWorld, renderer, font, new Vector2(0, 600));
             }
 
+            // draw a circle around each light
+            foreach (var light in this.Context.LightSources)
+            {
+                renderer.World.DrawCircle(light.AbsolutePosition, 16f, 16, Color.White);
+            }
+
+            // draw a rectangle around the entire map
             renderer.World.DrawRectangle(
-                new Vector2(-1, 1),
+                new Vector2(-1, -1),
                 new Size2(this.Context.Map.Width * this.Context.BlockStore.TileSize + 2, this.Context.Map.Height * this.Context.BlockStore.TileSize + 2),
                 Color.White);
 

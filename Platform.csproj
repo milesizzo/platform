@@ -72,10 +72,14 @@
     <Compile Include="BlockStore.cs" />
     <Compile Include="Character.cs" />
     <Compile Include="CharacterObject.cs" />
+    <Compile Include="Controllers\ComputerController.cs" />
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\HumanController.cs" />
+    <Compile Include="Editor\LightPlacement.cs" />
+    <Compile Include="Editor\PlacementMode.cs" />
     <Compile Include="Editor\StencilPicker.cs" />
     <Compile Include="Editor\TilePicker.cs" />
+    <Compile Include="Editor\TilePlacement.cs" />
     <Compile Include="Editor\TileStencil.cs" />
     <Compile Include="Light.cs" />
     <Compile Include="MapProcessor.cs" />

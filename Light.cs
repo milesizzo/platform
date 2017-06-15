@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -25,8 +26,8 @@ namespace Platform
         private Vector2 scale = Vector2.One;
         private bool enabled = true;
         private bool operating = false;
-        private LightOperatingDelegate operatingFunc = OperatingNightOnly;
-        private LightAnimationDelegate animation = null;
+        internal LightOperatingDelegate operatingFunc = OperatingNightOnly;
+        internal LightAnimationDelegate animation = null;
 
         public Light()
         {
@@ -83,10 +84,79 @@ namespace Platform
             set { this.animation = value; }
         }
 
+        public Light Clone()
+        {
+            var light = new Light();
+            light.owner = this.owner;
+            light.position = this.position;
+            light.colour = this.colour;
+            light.scale = this.scale;
+            light.enabled = this.enabled;
+            light.operating = this.operating;
+            light.operatingFunc = this.operatingFunc;
+            light.animation = this.animation;
+            return light;
+        }
+
         internal void Update(ref TimeSpan time, GameTime gameTime)
         {
             this.operating = this.operatingFunc == null ? true : this.operatingFunc(time);
             this.animation?.Invoke(this, gameTime);
+        }
+    }
+
+    public static class BinLightSerializer
+    {
+        public static void Save(BinaryWriter writer, Light light)
+        {
+            writer.Write(light.IsEnabled);
+            writer.Write(light.AbsolutePosition.X);
+            writer.Write(light.AbsolutePosition.Y);
+            writer.Write((UInt32)light.Colour.PackedValue);
+            writer.Write(light.Size.X);
+            writer.Write(light.Size.Y);
+            if (light.operatingFunc == Light.OperatingNightOnly)
+            {
+                writer.Write("nightonly");
+            }
+            else
+            {
+                writer.Write("custom");
+            }
+            if (light.animation == Light.Candle)
+            {
+                writer.Write("candle");
+            }
+            else
+            {
+                writer.Write("custom");
+            }
+        }
+
+        public static Light Load(BinaryReader reader)
+        {
+            var light = new Light();
+            light.IsEnabled = reader.ReadBoolean();
+            light.RelativePosition = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+            light.Colour = new Color(reader.ReadUInt32());
+            light.Size = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+            switch (reader.ReadString())
+            {
+                case "nightonly":
+                    light.OperatingFunction = Light.OperatingNightOnly;
+                    break;
+                case "custom":
+                    throw new InvalidOperationException("Can't deserialize custom");
+            }
+            switch (reader.ReadString())
+            {
+                case "candle":
+                    light.Animation = Light.Candle;
+                    break;
+                case "custom":
+                    throw new InvalidOperationException("Can't deserialize custom");
+            }
+            return light;
         }
     }
 }

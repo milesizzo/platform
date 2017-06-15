@@ -20,7 +20,7 @@ namespace Platform
         public TileMap Map;
         public BlockStore BlockStore;
         public RectangleF VisibleBounds;
-        private readonly Camera camera;
+        private Camera camera;
         private readonly List<Light> lights = new List<Light>();
         private bool lightsEnabled = false;
         private TimeSpan time = new TimeSpan(7, 0, 0); // start at 7am
@@ -82,15 +82,19 @@ namespace Platform
         private Color ambientLight;
         private bool enabled = true;
 
-        public PlatformContext(Camera camera) : base()
+        public PlatformContext() : base()
         {
-            this.camera = camera;
         }
 
-        public PlatformContext(Camera camera, int width, int height) : base()
+        public PlatformContext(int width, int height) : base()
         {
             this.Map = new TileMap(width, height);
-            this.camera = camera;
+        }
+
+        public Camera Camera
+        {
+            get { return this.camera; }
+            set { this.camera = value; }
         }
 
         public bool Enabled
@@ -126,6 +130,11 @@ namespace Platform
             return tile.X >= 0 && tile.X < this.Map.Width && tile.Y >= 0 && tile.Y < this.Map.Height;
         }
 
+        public bool IsInBounds(Vector2 world)
+        {
+            return world.X >= 0 && world.X < this.Map.Width * this.BlockStore.TileSize && world.Y >= 0 && world.Y < this.Map.Height * this.BlockStore.TileSize;
+        }
+
         public static float ZToDepth(float z)
         {
             return 0.7f - z * 0.6f;
@@ -140,6 +149,11 @@ namespace Platform
         public void AttachLightSource(Light light)
         {
             this.lights.Add(light);
+        }
+
+        public void RemoveLightSource(Light light)
+        {
+            this.lights.Remove(light);
         }
 
         public bool LightsEnabled
@@ -507,6 +521,55 @@ namespace Platform
                 }
                 pos.Y += this.BlockStore.TileSize;
             }
+        }
+    }
+
+    public static class BinPlatformContextSerializer
+    {
+        public static void Save(string filename, PlatformContext context)
+        {
+            using (var stream = File.OpenWrite(filename))
+            using (var writer = new BinaryWriter(stream))
+            {
+                Save(writer, context);
+            }
+        }
+
+        public static void Save(BinaryWriter writer, PlatformContext context)
+        {
+            BinTileMapSerializer.Save(writer, context.Map);
+            var lights = context.LightSources.ToList();
+            writer.Write((Int32)lights.Count);
+            foreach (var light in lights)
+            {
+                BinLightSerializer.Save(writer, light);
+            }
+            writer.Write(context.LightsEnabled);
+            writer.Write(context.Time.TotalSeconds);
+        }
+
+        public static PlatformContext Load(string filename)
+        {
+            using (var stream = File.OpenRead(filename))
+            using (var reader = new BinaryReader(stream))
+            {
+                return Load(reader);
+            }
+        }
+
+        public static PlatformContext Load(BinaryReader reader)
+        {
+            var context = new PlatformContext();
+            context.Map = BinTileMapSerializer.Load(reader);
+            var numLights = reader.ReadInt32();
+            while (numLights > 0)
+            {
+                context.AttachLightSource(BinLightSerializer.Load(reader));
+                numLights--;
+            }
+            context.LightsEnabled = reader.ReadBoolean();
+            context.Time = TimeSpan.FromSeconds(reader.ReadDouble());
+            return context;
         }
     }
 }

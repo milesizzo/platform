@@ -7,31 +7,27 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
-    public class Prefab<T>
+    public abstract class Prefab<T>
     {
-        private readonly Func<T> generator;
-
-        public Prefab(Func<T> generator)
+        public Prefab()
         {
-            this.generator = generator;
         }
 
-        public T Produce()
-        {
-            return this.generator();
-        }
+        public abstract T Produce();
     }
 
     public class VisibleObjectPrefab : Prefab<VisiblePlatformObject>
     {
+        private readonly PlatformContext context;
         private readonly ISpriteTemplate sprite;
         
-        public VisibleObjectPrefab(PlatformContext context, ISpriteTemplate sprite) : base(() => Generate(context, sprite))
+        public VisibleObjectPrefab(PlatformContext context, ISpriteTemplate sprite)
         {
+            this.context = context;
             this.sprite = sprite;
         }
 
-        private static VisiblePlatformObject Generate(PlatformContext context, ISpriteTemplate sprite)
+        public override VisiblePlatformObject Produce()
         {
             var obj = new VisiblePlatformObject(context);
             obj.Sprite = sprite;
@@ -42,6 +38,21 @@ namespace Platform
         public ISpriteTemplate Sprite
         {
             get { return this.sprite; }
+        }
+    }
+
+    public class LightPrefab : Prefab<Light>
+    {
+        private readonly Light light;
+
+        public LightPrefab(Light light)
+        {
+            this.light = light;
+        }
+
+        public override Light Produce()
+        {
+            return this.light;
         }
     }
 }

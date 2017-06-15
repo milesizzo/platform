@@ -8,6 +8,11 @@ using System;
 
 namespace Platform.Editor
 {
+    public interface Stampable
+    {
+        void Stamp(PlatformContext context, Vector2 world);
+    }
+
     public class TileStencil
     {
         public enum Layer

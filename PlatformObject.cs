@@ -11,6 +11,7 @@ namespace Platform
 
         public PlatformObject(PlatformContext context) : base(context)
         {
+            //context.AddObject(this);
         }
 
         public override Vector2 Position
