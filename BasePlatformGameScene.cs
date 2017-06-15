@@ -24,7 +24,6 @@ namespace Platform
         private RenderTarget2D lightsTarget;
         private RenderTarget2D mainTarget;
         private Effect effect1;
-        private ISpriteTemplate lightMask;
 
         public BasePlatformGameScene(string name, GraphicsDevice graphics) : base(name, graphics)
         {
@@ -50,7 +49,7 @@ namespace Platform
             this.mainTarget = new RenderTarget2D(this.Graphics, pp.BackBufferWidth, pp.BackBufferHeight);
 
             this.effect1 = Store.Instance.Content.Load<Effect>("lighteffect");
-            this.lightMask = Store.Instance.Sprites<ISpriteTemplate>("Base", "lightmask");
+            Light.LightMask = Store.Instance.Sprites<ISpriteTemplate>("Base", "lightmask");
 
             this.Context.LightsEnabled = true;
 
@@ -86,7 +85,7 @@ namespace Platform
                 renderer.World.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.Additive, transformMatrix: this.Camera.GetViewMatrix());
                 foreach (var light in this.Context.LightSources.Where(l => l.IsEnabled && l.IsOperating))
                 {
-                    this.lightMask.DrawSprite(renderer.World, light.AbsolutePosition, light.Colour, 0, light.Size);
+                    Light.LightMask.DrawSprite(renderer.World, light.AbsolutePosition, light.Colour, 0, light.Size);
                 }
                 renderer.World.End();
             }
@@ -119,6 +118,14 @@ namespace Platform
             this.effect1.CurrentTechnique.Passes[0].Apply();
             renderer.World.Draw(this.mainTarget, Vector2.Zero, Color.White);
             // render the combined targets
+            renderer.World.End();
+
+            // render any top-layer lights (eg. specular)
+            renderer.World.Begin(sortMode: SpriteSortMode.Immediate, blendState: BlendState.Additive, transformMatrix: this.Camera.GetViewMatrix());
+            foreach (var light in this.Context.LightSources.Where(l => l.IsEnabled && l.IsOperating))
+            {
+                light.Draw(renderer);
+            }
             renderer.World.End();
 
             // finally, render the screen layer

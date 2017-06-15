@@ -1,5 +1,8 @@
 ﻿using GameEngine.GameObjects;
+using GameEngine.Graphics;
+using GameEngine.Templates;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,12 +17,21 @@ namespace Platform
 
     public class Light
     {
+        public enum Type : byte
+        {
+            Ambient,
+            Specular,
+        }
+
+        public static ISpriteTemplate LightMask;
+
         public static LightOperatingDelegate OperatingNightOnly = time => time.Hours < 8 || time.Hours > 17;
 
         public static LightAnimationDelegate Candle = (light, gameTime) =>
         {
         };
 
+        private Type type;
         private IGameObject owner;
         private Vector2 position = Vector2.Zero;
         private Color colour = Color.White;
@@ -32,6 +44,13 @@ namespace Platform
         public Light()
         {
             this.owner = null;
+            this.type = Type.Ambient;
+        }
+
+        public Type LightType
+        {
+            get { return this.type; }
+            set { this.type = value; }
         }
 
         public IGameObject Owner
@@ -95,6 +114,7 @@ namespace Platform
             light.operating = this.operating;
             light.operatingFunc = this.operatingFunc;
             light.animation = this.animation;
+            light.type = this.type;
             return light;
         }
 
@@ -102,6 +122,17 @@ namespace Platform
         {
             this.operating = this.operatingFunc == null ? true : this.operatingFunc(time);
             this.animation?.Invoke(this, gameTime);
+        }
+
+        internal void Draw(Renderer renderer)
+        {
+            switch (this.type)
+            {
+                case Type.Specular:
+                    var colour = new Color(this.colour.R, this.colour.G, this.colour.B, (byte)64);
+                    LightMask.DrawSprite(renderer.World, 0, this.AbsolutePosition, colour, 0, this.Size, SpriteEffects.None, 0);
+                    break;
+            }
         }
     }
 
@@ -115,6 +146,7 @@ namespace Platform
             writer.Write((UInt32)light.Colour.PackedValue);
             writer.Write(light.Size.X);
             writer.Write(light.Size.Y);
+            writer.Write((byte)light.LightType);
             if (light.operatingFunc == Light.OperatingNightOnly)
             {
                 writer.Write("nightonly");
@@ -126,6 +158,10 @@ namespace Platform
             if (light.animation == Light.Candle)
             {
                 writer.Write("candle");
+            }
+            else if (light.animation == null)
+            {
+                writer.Write("none");
             }
             else
             {
@@ -140,12 +176,13 @@ namespace Platform
             light.RelativePosition = new Vector2(reader.ReadSingle(), reader.ReadSingle());
             light.Colour = new Color(reader.ReadUInt32());
             light.Size = new Vector2(reader.ReadSingle(), reader.ReadSingle());
+            light.LightType = (Light.Type)reader.ReadByte();
             switch (reader.ReadString())
             {
                 case "nightonly":
                     light.OperatingFunction = Light.OperatingNightOnly;
                     break;
-                case "custom":
+                default:
                     throw new InvalidOperationException("Can't deserialize custom");
             }
             switch (reader.ReadString())
@@ -153,7 +190,10 @@ namespace Platform
                 case "candle":
                     light.Animation = Light.Candle;
                     break;
-                case "custom":
+                case "none":
+                    light.animation = null;
+                    break;
+                default:
                     throw new InvalidOperationException("Can't deserialize custom");
             }
             return light;

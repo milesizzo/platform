@@ -244,14 +244,59 @@ namespace Platform
 
             // lights menu
             var lightsMenu = (this.mainMenu as PanelTabs).AddTab("Lights", PanelSkin.Default);
-            var candleButton = new Button("Candle", anchor: Anchor.AutoCenter);
-            candleButton.OnClick += (e) =>
+            var colourPanel = new Panel(new Vector2(0, 250), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
+            var redLabel = new Label("Red", anchor: Anchor.AutoCenter);
+            var redSlider = new Slider(min: 0, max: 255, skin: SliderSkin.Default, anchor: Anchor.AutoCenter);
+            redSlider.Value = 255;
+            var greenLabel = new Label("Green", anchor: Anchor.AutoCenter);
+            var greenSlider = new Slider(min: 0, max: 255, skin: SliderSkin.Default, anchor: Anchor.AutoCenter);
+            greenSlider.Value = 255;
+            var blueLabel = new Label("Blue", anchor: Anchor.AutoCenter);
+            var blueSlider = new Slider(min: 0, max: 255, skin: SliderSkin.Default, anchor: Anchor.AutoCenter);
+            blueSlider.Value = 255;
+            colourPanel.AddChild(redLabel);
+            colourPanel.AddChild(redSlider);
+            colourPanel.AddChild(greenLabel);
+            colourPanel.AddChild(greenSlider);
+            colourPanel.AddChild(blueLabel);
+            colourPanel.AddChild(blueSlider);
+            lightsMenu.panel.AddChild(colourPanel);
+            var animationPanel = new Panel(new Vector2(0, 150), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
+            var animationLabel = new Label("Animation", anchor: Anchor.AutoCenter);
+            var animationDropdown = new DropDown(Vector2.Zero, anchor: Anchor.AutoCenter);
+            animationDropdown.AddItem("None");
+            animationDropdown.AddItem("Candle");
+            animationDropdown.SelectedIndex = 0;
+            animationPanel.AddChild(animationLabel);
+            animationPanel.AddChild(animationDropdown);
+            lightsMenu.panel.AddChild(animationPanel);
+            var lightTypeDropdown = new DropDown(new Vector2(0, 100), anchor: Anchor.AutoCenter);
+            lightTypeDropdown.AddItem("Ambient");
+            lightTypeDropdown.AddItem("Specular");
+            lightTypeDropdown.SelectedIndex = 0;
+            lightsMenu.panel.AddChild(lightTypeDropdown);
+
+            var updateButton = new Button("Set Light", anchor: Anchor.BottomCenter);
+            updateButton.OnClick += (e) =>
             {
                 var light = new Light();
-                light.Animation = Light.Candle;
+                switch (animationDropdown.SelectedIndex)
+                {
+                    case 0:
+                        light.animation = null;
+                        break;
+                    case 1:
+                        light.animation = Light.Candle;
+                        break;
+                    default:
+                        light.animation = null;
+                        break;
+                }
+                light.LightType = (Light.Type)lightTypeDropdown.SelectedIndex;
+                light.Colour = new Color(redSlider.Value, greenSlider.Value, blueSlider.Value);
                 this.mode = new LightPlacement(light);
             };
-            lightsMenu.panel.AddChild(candleButton);
+            lightsMenu.panel.AddChild(updateButton);
 
             UserInterface.Active.AddEntity(this.mainMenu);
         }
@@ -443,7 +488,7 @@ namespace Platform
             // draw a circle around each light
             foreach (var light in this.Context.LightSources)
             {
-                renderer.World.DrawCircle(light.AbsolutePosition, 16f, 16, Color.White);
+                renderer.World.DrawCircle(light.AbsolutePosition, 16f, 16, light.Colour);
             }
 
             // draw a rectangle around the entire map
