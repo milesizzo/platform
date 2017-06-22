@@ -26,7 +26,8 @@ namespace Platform
 {
     public class PlatformEditorScene : BasePlatformGameScene
     {
-        private const string DefaultMap = "editor.map";
+        //private const string DefaultMap = "editor.map";
+        public const string DefaultContext = "editor.ctx";
         private Vector2? pan = null;
         private readonly List<TileStencil> stencils = new List<TileStencil>();
         private Entity mainMenu = null;
@@ -50,15 +51,12 @@ namespace Platform
         protected override PlatformContext CreateContext()
         {
             PlatformContext context;
-            if (File.Exists("default.ctx"))
+            if (!File.Exists(DefaultContext))
             {
-                context = BinPlatformContextSerializer.Load("default.ctx");
+                File.Copy(@"Content\Maps\default.ctx", DefaultContext);
             }
-            else
-            {
-                context = new PlatformContext();
-                context.Map = BinTileMapSerializer.Load(DefaultMap);
-            }
+            context = BinPlatformContextSerializer.Load(DefaultContext);
+
             context.Camera = this.Camera;
             context.Enabled = false;
             return context;
@@ -82,6 +80,32 @@ namespace Platform
 
             // file menu
             var fileMenu = (this.mainMenu as PanelTabs).AddTab("File", PanelSkin.Default);
+            var newMapPanel = new Panel(new Vector2(800, 120), skin: PanelSkin.Simple, anchor: Anchor.AutoCenter);
+            var newMapWidth = new TextInput(false, anchor: Anchor.CenterLeft, size: new Vector2(200, 100));
+            newMapWidth.Value = $"{this.Context.Map.Width}";
+            newMapPanel.AddChild(newMapWidth);
+            var newMapHeight = new TextInput(false, anchor: Anchor.Center, size: new Vector2(200, 100));
+            newMapHeight.Value = $"{this.Context.Map.Height}";
+            newMapPanel.AddChild(newMapHeight);
+            var newMapButton = new Button("New", anchor: Anchor.CenterRight, size: new Vector2(200, 100));
+            newMapButton.OnClick += (e) =>
+            {
+                int width;
+                int height;
+                if (!int.TryParse(newMapWidth.Value, out width))
+                {
+                    return;
+                }
+                if (!int.TryParse(newMapHeight.Value, out height))
+                {
+                    return;
+                }
+                this.Context.Reset();
+                this.Context.Map = new TileMap(width, height);
+            };
+            newMapPanel.AddChild(newMapButton);
+            fileMenu.panel.AddChild(newMapPanel);
+
             var processButton = new Button("Process", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
             processButton.OnClick += (b) =>
             {
@@ -89,37 +113,41 @@ namespace Platform
                 processor.Process(this.Context.Map);
             };
             fileMenu.panel.AddChild(processButton);
-            var saveBlockStoreButton = new Button("Save BlockStore", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
+            /*var saveBlockStoreButton = new Button("Save BlockStore", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
             saveBlockStoreButton.OnClick += (b) =>
             {
                 this.SaveBlockStore();
             };
-            fileMenu.panel.AddChild(saveBlockStoreButton);
+            fileMenu.panel.AddChild(saveBlockStoreButton);*/
 
-            var saveContextButton = new Button("Save context", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
+            /*var saveContextButton = new Button("Save context", anchor: Anchor.AutoCenter, size: new Vector2(400, 100));
             saveContextButton.OnClick += (b) =>
             {
                 BinPlatformContextSerializer.Save("default.ctx", this.Context);
             };
-            fileMenu.panel.AddChild(saveContextButton);
+            fileMenu.panel.AddChild(saveContextButton);*/
 
             // 'save map' area
             var savePanel = new Panel(new Vector2(600, 100), skin: PanelSkin.Simple, anchor: Anchor.BottomLeft);
 
             var filenameInput = new TextInput(false, anchor: Anchor.CenterLeft, size: new Vector2(300, 0));
-            filenameInput.Value = DefaultMap;
+            filenameInput.Value = DefaultContext;
             savePanel.AddChild(filenameInput);
 
             var saveButton = new Button("Save", anchor: Anchor.CenterRight, size: new Vector2(200, 0));
             saveButton.OnClick += (b) =>
             {
                 var filename = filenameInput.Value.Trim();
-                if (!filename.EndsWith(".map", StringComparison.InvariantCultureIgnoreCase))
+                if (string.IsNullOrEmpty(filename))
                 {
-                    filename += ".map";
+                    return;
+                }
+                if (!filename.EndsWith(".ctx", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    filename += ".ctx";
                     filenameInput.Value = filename;
                 }
-                BinTileMapSerializer.Save(filenameInput.TextParagraph.Text, this.Context.Map);
+                BinPlatformContextSerializer.Save(filenameInput.TextParagraph.Text, this.Context);
             };
             savePanel.AddChild(saveButton);
             fileMenu.panel.AddChild(savePanel);
@@ -306,11 +334,6 @@ namespace Platform
             base.SetUp();
 
             var font = Store.Instance.Fonts("Base", "debug");
-            if (!File.Exists(DefaultMap))
-            {
-                File.Copy("Content\\Maps\\landscape.map", DefaultMap, true);
-            }
-            this.Context.Map = BinTileMapSerializer.Load(DefaultMap);
 
             // stencils
             this.stencils.Clear();
@@ -436,7 +459,14 @@ namespace Platform
                     var last = this.lastPlacement;
                     if (mouse.LeftButton == ButtonState.Pressed && (!last.HasValue || last.Value.Location != mouseTile || last.Value.Button != GameEngine.Helpers.MouseButton.Left))
                     {
-                        this.mode.Stamp(this.Context, mouseWorld);
+                        if (KeyboardHelper.KeyDown(Keys.F) && asTilePlacement != null)
+                        {
+                            PaintOperations.FloodFill(this.Context, mouseTile, asTilePlacement);
+                        }
+                        else
+                        {
+                            this.mode.Stamp(this.Context, mouseWorld);
+                        }
                         this.lastPlacement = new Placement { Location = mouseTile, Button = GameEngine.Helpers.MouseButton.Left };
                     }
                     if (mouse.RightButton == ButtonState.Pressed && (!last.HasValue || last.Value.Location != mouseTile || last.Value.Button != GameEngine.Helpers.MouseButton.Right))
@@ -492,9 +522,11 @@ namespace Platform
             }
 
             // draw a rectangle around the entire map
-            renderer.World.DrawRectangle(
-                new Vector2(-1, -1),
-                new Size2(this.Context.Map.Width * this.Context.BlockStore.TileSize + 2, this.Context.Map.Height * this.Context.BlockStore.TileSize + 2),
+            var topLeft = this.Context.WorldToScreen(Vector2.Zero);
+            var bottomRight = this.Context.WorldToScreen(new Vector2(this.Context.WorldWidth, this.Context.WorldHeight));
+            renderer.Screen.DrawRectangle(
+                topLeft,
+                bottomRight - topLeft,
                 Color.White);
 
             base.Draw(renderer, gameTime);

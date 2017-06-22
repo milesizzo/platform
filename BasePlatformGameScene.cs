@@ -30,13 +30,13 @@ namespace Platform
             //
         }
 
-        protected void SaveBlockStore()
+        /*protected void SaveBlockStore()
         {
             using (var serializer = new MgiJsonSerializer($"BlockStore{StaticData16x16.Instance.Name}.json", SerializerMode.Write))
             {
                 serializer.Context.Write("blockstore", this.Context.BlockStore, PlatformSerialize.Write);
             }
-        }
+        }*/
 
         public override void SetUp()
         {
@@ -53,6 +53,7 @@ namespace Platform
 
             this.Context.LightsEnabled = true;
 
+            /*
 #if STATICDATA
             this.Context.BlockStore = StaticData16x16.Instance.SetupBlockStore();
             StaticData16x16.Instance.AddPrefabs(this.Context);
@@ -67,6 +68,7 @@ namespace Platform
                 this.Context.BlockStore = serializer.Context.Read<BlockStore, Store>("blockstore", Store.Instance, PlatformSerialize.Read);
             }
 #endif
+            */
 
             this.Camera.LookAt(new Vector2(0, 0));
             this.Camera.SamplerState = SamplerState.PointClamp;

@@ -75,6 +75,7 @@
     <Compile Include="Controllers\ComputerController.cs" />
     <Compile Include="Controllers\Controller.cs" />
     <Compile Include="Controllers\HumanController.cs" />
+    <Compile Include="Editor\PaintOperations.cs" />
     <Compile Include="Editor\LightPlacement.cs" />
     <Compile Include="Editor\PlacementMode.cs" />
     <Compile Include="Editor\StencilPicker.cs" />
@@ -543,6 +544,9 @@
     <None Include="Content\GeonBit.UI\themes\lowres\fonts\Bold.spritefont" />
     <None Include="Content\GeonBit.UI\themes\lowres\fonts\Italic.spritefont" />
     <None Include="Content\GeonBit.UI\themes\lowres\fonts\Regular.spritefont" />
+    <Content Include="Content\Maps\default.ctx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

@@ -91,6 +91,12 @@ namespace Platform
             this.Map = new TileMap(width, height);
         }
 
+        public override void Reset()
+        {
+            base.Reset();
+            this.lights.Clear();
+        }
+
         public Camera Camera
         {
             get { return this.camera; }
@@ -123,6 +129,16 @@ namespace Platform
         public Vector2 TileToWorld(int x, int y)
         {
             return new Vector2(x * this.BlockStore.TileSize, y * this.BlockStore.TileSize);
+        }
+
+        public int WorldWidth
+        {
+            get { return this.Map.Width * this.BlockStore.TileSize; }
+        }
+
+        public int WorldHeight
+        {
+            get { return this.Map.Height * this.BlockStore.TileSize; }
         }
 
         public bool IsInBounds(Point tile)
@@ -537,6 +553,7 @@ namespace Platform
 
         public static void Save(BinaryWriter writer, PlatformContext context)
         {
+            BinBlockStoreSerializer.Save(writer, context.BlockStore);
             BinTileMapSerializer.Save(writer, context.Map);
             var lights = context.LightSources.ToList();
             writer.Write((Int32)lights.Count);
@@ -560,6 +577,7 @@ namespace Platform
         public static PlatformContext Load(BinaryReader reader)
         {
             var context = new PlatformContext();
+            context.BlockStore = BinBlockStoreSerializer.Load(reader);
             context.Map = BinTileMapSerializer.Load(reader);
             var numLights = reader.ReadInt32();
             while (numLights > 0)

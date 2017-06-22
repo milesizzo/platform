@@ -42,6 +42,11 @@ namespace Platform
             }
         }
 
+        public bool IsInBounds(Point point)
+        {
+            return point.X >= 0 && point.Y >= 0 && point.X < this.Width && point.Y < this.Height;
+        }
+
         public MapCell this[int y, int x]
         {
             get { return this.Rows[y].Columns[x]; }
@@ -91,6 +96,7 @@ namespace Platform
 
     public static class BinTileMapSerializer
     {
+        public const byte Version = 1;
         public const byte TagTileNone = 0;
         public const byte TagTileMaterial = 1;
         public const byte TagTileBlock = 2;
@@ -106,6 +112,7 @@ namespace Platform
 
         public static void Save(BinaryWriter writer, TileMap map)
         {
+            writer.Write((byte)Version);
             writer.Write((Int32)map.Width);
             writer.Write((Int32)map.Height);
             writer.Write((UInt32)map.BackgroundColour.PackedValue);
@@ -159,6 +166,11 @@ namespace Platform
 
         public static TileMap Load(BinaryReader reader)
         {
+            var version = reader.ReadByte();
+            if (version != Version)
+            {
+                throw new InvalidOperationException("Invalid version");
+            }
             var width = reader.ReadInt32();
             var height = reader.ReadInt32();
             var result = new TileMap(width, height);

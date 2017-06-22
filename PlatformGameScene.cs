@@ -28,14 +28,13 @@ namespace Platform
         protected override PlatformContext CreateContext()
         {
             PlatformContext context;
-            if (File.Exists("default.ctx"))
+            if (File.Exists(PlatformEditorScene.DefaultContext))
             {
-                context = BinPlatformContextSerializer.Load("default.ctx");
+                context = BinPlatformContextSerializer.Load(PlatformEditorScene.DefaultContext);
             }
             else
             {
-                context = new PlatformContext();
-                context.Map = BinTileMapSerializer.Load("editor.map");
+                context = BinPlatformContextSerializer.Load(@"Content\Maps\default.ctx");
             }
             context.Camera = this.Camera;
             return context;
