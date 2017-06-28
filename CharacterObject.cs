@@ -42,6 +42,42 @@ namespace Platform
             this.currentAnimation = null;
             this.character = null;
             this.controller = null;
+            this.OnCollide += this.Collide;
+        }
+
+        private void Collide(VisiblePlatformObject other)
+        {
+            const float Amount = 100f;
+
+            var asCharacter = other as CharacterObject;
+            if (asCharacter != null)
+            {
+                var enemy = this.Character as Enemy;
+                var otherEnemy = asCharacter.Character as Enemy;
+                if (enemy != otherEnemy)
+                {
+                    // 'other' is an enemy to us
+                    var x = 0f;
+                    var y = 0f;
+                    if (this.Position.X < other.Position.X)
+                    {
+                        x = -Amount;
+                    }
+                    else
+                    {
+                        x = Amount;
+                    }
+                    if (this.Position.Y < other.Position.Y)
+                    {
+                        y = -Amount;
+                    }
+                    else
+                    {
+                        y = Amount;
+                    }
+                    this.Velocity = new Vector2(x, y);
+                }
+            }
         }
 
         public Character Character
@@ -196,6 +232,10 @@ namespace Platform
 
             if (!string.IsNullOrEmpty(animation) && animation != this.currentAnimation)
             {
+                if (!this.character.Sprite.HasAnimation(animation))
+                {
+                    animation = $"Walk{this.facing}"; // fallback
+                }
                 this.Sprite = this.character.Sprite.GetAnimation(animation);
                 this.currentAnimation = animation;
             }

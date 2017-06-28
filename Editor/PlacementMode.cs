@@ -12,6 +12,8 @@ namespace Platform.Editor
 {
     public interface IPlacementMode
     {
+        string Name { get; }
+
         void Stamp(PlatformContext context, Vector2 world);
 
         void Clear(PlatformContext context, Vector2 world);
@@ -57,6 +59,8 @@ namespace Platform.Editor
             this.ContextMenuImpl(contextMenu, context, world);
             return contextMenu;
         }
+
+        public abstract string Name { get; }
 
         public abstract void DrawDebug(PlatformContext context, Vector2 world, Renderer renderer, FontTemplate font, Vector2 position);
 

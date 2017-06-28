@@ -20,6 +20,11 @@ namespace Platform.Editor
             this.layer = layer;
         }
 
+        public override string Name
+        {
+            get { return "Tiles"; }
+        }
+
         public TileStencil.Layer Layer
         {
             get { return this.layer; }

@@ -14,6 +14,8 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
+    public delegate void CollisionEvent(VisiblePlatformObject other);
+
     public class VisiblePlatformObject : PlatformObject
     {
         public const float Gravity = 2000f;
@@ -22,6 +24,7 @@ namespace Platform
         public const float TerminalWaterVelocity = 200f;
         public bool IsPhysicsEnabled = true;
         public bool IsGravityEnabled = true;
+        public CollisionEvent OnCollide;
         private ISpriteTemplate sprite;
         private float frame;
         private Vector2 velocity;

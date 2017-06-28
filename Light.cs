@@ -3,6 +3,7 @@ using GameEngine.Graphics;
 using GameEngine.Templates;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using MonoGame.Extended;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -133,6 +134,16 @@ namespace Platform
                     LightMask.DrawSprite(renderer.World, 0, this.AbsolutePosition, colour, 0, this.Size, SpriteEffects.None, 0);
                     break;
             }
+        }
+
+        public static void DrawDebug(Renderer renderer, Vector2 world, Color colour)
+        {
+            renderer.World.DrawCircle(world, 16f, 16, colour);
+        }
+
+        public void DrawDebug(Renderer renderer)
+        {
+            DrawDebug(renderer, this.AbsolutePosition, this.Colour);
         }
     }
 

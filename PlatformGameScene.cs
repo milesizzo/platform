@@ -12,6 +12,7 @@ using GameEngine.Helpers;
 using CommonLibrary;
 using Platform.Controllers;
 using System.IO;
+using System.Linq;
 
 namespace Platform
 {
@@ -77,8 +78,6 @@ namespace Platform
             }*/
             this.Context.Map.SaveToImage(this.Graphics, "map.png");
 
-            var startY = 160f * this.Context.BlockStore.TileSize;
-
             this.characters.GetOrAdd("Cat", (name) => new Character(name)
             {
                 JumpPower = 500f,
@@ -124,6 +123,32 @@ namespace Platform
                 Bounds = new RectangleF(Point2.Zero, new Size2(8, 16)),
             });
 
+            this.characters.GetOrAdd("Girl", (name) => new Character(name)
+            {
+                JumpPower = 450f,
+                WalkSpeed = 350f,
+                RunSpeed = 450f,
+                ClimbSpeed = 300f,
+                WalkMaxSpeed = 125f,
+                RunMaxSpeed = 175f,
+                ClimbMaxSpeed = 100f,
+                WaterModifier = 0.4f,
+                SwimPower = 200f,
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "player.girl"),
+                Bounds = new RectangleF(Point2.Zero, new Size2(12, 20)),
+            });
+
+            this.characters.GetOrAdd("Worm", (name) => new Enemy(name)
+            {
+                WalkSpeed = 270f,
+                RunSpeed = 270f,
+                WalkMaxSpeed = 25f,
+                RunMaxSpeed = 25f,
+                WaterModifier = 0.4f,
+                Sprite = Store.Instance.Sprites<NamedAnimatedSpriteSheetTemplate>("Base", "enemy.worm"),
+                Bounds = new RectangleF(Point2.Zero, new Size2(17, 18)),
+            });
+
             var controller = new HumanCharacterController();
             controller[HumanActions.Jump] = new KeyboardAction(Keys.Space);
             controller[HumanActions.Swim] = new KeyboardAction(Keys.Space);
@@ -135,7 +160,16 @@ namespace Platform
             this.player = new CharacterObject(this.Context);
             this.player.Character = this.characters["Cat"];
             this.player.Controller = controller;
-            this.player.Position3D = new Vector3(1280, startY, 0.5f);
+            if (this.Context.Spawn.Any())
+            {
+                var random = new Random();
+                var spawn = random.Choice(this.Context.Spawn);
+                this.player.Position3D = new Vector3(spawn.World.X, spawn.World.Y, 0.5f);
+            }
+            else
+            {
+                this.player.Position3D = new Vector3(0, 0, 0.5f);
+            }
             this.player.IsGravityEnabled = !this.godMode;
             this.Context.AddObject(this.player);
             this.Context.AttachLightSource(this.player, new Light
@@ -143,6 +177,14 @@ namespace Platform
                 RelativePosition = new Vector2(this.player.Bounds.Width / 2, this.player.Bounds.Height / 2),
                 Colour = Color.Yellow
             });
+
+            var enemy = new CharacterObject(this.Context);
+            enemy.Character = this.characters["Worm"];
+            enemy.Controller = new EnemyController();
+            enemy.Position3D = this.player.Position3D;
+            enemy.IsGravityEnabled = true;
+            enemy.Direction = CharacterObject.Facing.Right;
+            this.Context.AddObject(enemy);
 
             /*var npc = new CharacterObject(this.Context);
             npc.Character = this.characters["Bear"];
@@ -180,6 +222,10 @@ namespace Platform
             if (KeyboardHelper.KeyPressed(Keys.D3))
             {
                 this.player.Character = this.characters["Pig"];
+            }
+            if (KeyboardHelper.KeyPressed(Keys.D4))
+            {
+                this.player.Character = this.characters["Girl"];
             }
 
             if (KeyboardHelper.KeyPressed(Keys.F12))

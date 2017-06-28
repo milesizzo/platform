@@ -326,6 +326,15 @@ namespace Platform
             };
             lightsMenu.panel.AddChild(updateButton);
 
+            // other placeable items
+            var otherMenu = (this.mainMenu as PanelTabs).AddTab("Other", PanelSkin.Default);
+            var setSpawnButton = new Button("Set Spawn Locations", anchor: Anchor.AutoCenter);
+            setSpawnButton.OnClick += (e) =>
+            {
+                this.mode = new SpawnPlacement(new Spawn());
+            };
+            otherMenu.panel.AddChild(setSpawnButton);
+
             UserInterface.Active.AddEntity(this.mainMenu);
         }
 
@@ -474,9 +483,12 @@ namespace Platform
                         if (KeyboardHelper.KeyDown(Keys.LeftShift))
                         {
                             var menu = this.mode.ContextMenu(this.Context, mouseWorld);
-                            UserInterface.Active.AddEntity(this.contextMenu);
-                            this.ShowUI(menu);
-                            this.contextMenu = menu;
+                            if (menu != null)
+                            {
+                                UserInterface.Active.AddEntity(menu);
+                                this.ShowUI(menu);
+                                this.contextMenu = menu;
+                            }
                         }
                         else
                         {
@@ -518,7 +530,13 @@ namespace Platform
             // draw a circle around each light
             foreach (var light in this.Context.LightSources)
             {
-                renderer.World.DrawCircle(light.AbsolutePosition, 16f, 16, light.Colour);
+                light.DrawDebug(renderer);
+            }
+
+            // draw spawn locations
+            foreach (var spawn in this.Context.Spawn)
+            {
+                spawn.DrawDebug(renderer);
             }
 
             // draw a rectangle around the entire map

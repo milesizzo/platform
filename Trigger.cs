@@ -8,6 +8,20 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace Platform
 {
+    public enum TriggerSource
+    {
+        Spawn,
+        Use,
+        Touch,
+    }
+
+    public enum TriggerAction
+    {
+        Map,
+        Teleport,
+        Item,
+    }
+
     public interface ITrigger
     {
         void Execute();

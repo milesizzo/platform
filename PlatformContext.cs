@@ -15,11 +15,43 @@ using System.Threading.Tasks;
 
 namespace Platform
 {
+    public class Spawn
+    {
+        public Vector2 World;
+       
+        public Spawn()
+        {
+            this.World = Vector2.Zero;
+        } 
+
+        public Spawn(Vector2 world)
+        {
+            this.World = world;
+        }
+
+        public void DrawDebug(Renderer renderer)
+        {
+            DrawDebug(renderer, this.World);
+        }
+
+        public static void DrawDebug(Renderer renderer, Vector2 world)
+        {
+            renderer.World.DrawCircle(new CircleF(world, 10f), 32, Color.Purple, 2);
+            renderer.World.DrawPoint(world, Color.Yellow, 4);
+        }
+
+        public Spawn Clone()
+        {
+            return new Spawn(this.World);
+        }
+    }
+
     public class PlatformContext : GameContext
     {
         public TileMap Map;
         public BlockStore BlockStore;
         public RectangleF VisibleBounds;
+        public readonly List<Spawn> Spawn = new List<Spawn>();
         private Camera camera;
         private readonly List<Light> lights = new List<Light>();
         private bool lightsEnabled = false;
@@ -307,6 +339,8 @@ namespace Platform
             {
                 return true;
             }
+            if (!this.IsInBounds(topLeft) || !this.IsInBounds(bottomRight)) return false;
+
             var slopeLU = false;
             var tile = this.Map[this.WorldToTile(bottomRight)].Block as Tile;
             if (tile != null)
@@ -393,6 +427,8 @@ namespace Platform
 
         public float SlopeAmountRight(Vector2 bottomRight, int searchHeight)
         {
+            if (!this.IsInBounds(bottomRight)) return float.MaxValue;
+
             // 1. check if bottomRight is in a slope tile
             // 2. check bit mask / function, return distance to slope
             Vector2 offset;
@@ -429,6 +465,8 @@ namespace Platform
 
         public float SlopeAmountLeft(Vector2 bottomLeft, int searchHeight)
         {
+            if (!this.IsInBounds(bottomLeft)) return float.MaxValue;
+
             // 1. check if bottomLeft is in a slope tile
             // 2. check bit mask / function, return distance to slope
             Vector2 offset;
@@ -472,6 +510,27 @@ namespace Platform
                 foreach (var light in this.lights.Where(l => l.IsEnabled))
                 {
                     light.Update(ref this.time, gameTime);
+                }
+
+                // check for collisions
+                // TODO: improve perf
+                foreach (var first in this.Objects)
+                {
+                    var firstAsVisible = first as VisiblePlatformObject;
+                    if (firstAsVisible == null) continue;
+                    foreach (var second in this.Objects)
+                    {
+                        var secondAsVisible = second as VisiblePlatformObject;
+                        if (secondAsVisible == null) continue;
+                        if (firstAsVisible != secondAsVisible)
+                        {
+                            if (firstAsVisible.Bounds.Intersects(secondAsVisible.Bounds))
+                            {
+                                firstAsVisible.OnCollide?.Invoke(secondAsVisible);
+                                secondAsVisible.OnCollide?.Invoke(firstAsVisible);
+                            }
+                        }
+                    }
                 }
             }
 
@@ -540,8 +599,26 @@ namespace Platform
         }
     }
 
+    public static class BinSpawnSerializer
+    {
+        public static void Save(BinaryWriter writer, Spawn spawn)
+        {
+            writer.Write((Single)spawn.World.X);
+            writer.Write((Single)spawn.World.Y);
+        }
+
+        public static Spawn Load(BinaryReader reader)
+        {
+            var x = reader.ReadSingle();
+            var y = reader.ReadSingle();
+            return new Spawn(new Vector2(x, y));
+        }
+    }
+
     public static class BinPlatformContextSerializer
     {
+        private const int Version = 2;
+
         public static void Save(string filename, PlatformContext context)
         {
             using (var stream = File.OpenWrite(filename))
@@ -553,6 +630,7 @@ namespace Platform
 
         public static void Save(BinaryWriter writer, PlatformContext context)
         {
+            writer.Write((Int32)Version);
             BinBlockStoreSerializer.Save(writer, context.BlockStore);
             BinTileMapSerializer.Save(writer, context.Map);
             var lights = context.LightSources.ToList();
@@ -562,7 +640,12 @@ namespace Platform
                 BinLightSerializer.Save(writer, light);
             }
             writer.Write(context.LightsEnabled);
-            writer.Write(context.Time.TotalSeconds);
+            writer.Write((Double)context.Time.TotalSeconds);
+            writer.Write((Int32)context.Spawn.Count);
+            foreach (var spawn in context.Spawn)
+            {
+                BinSpawnSerializer.Save(writer, spawn);
+            }
         }
 
         public static PlatformContext Load(string filename)
@@ -576,6 +659,11 @@ namespace Platform
 
         public static PlatformContext Load(BinaryReader reader)
         {
+            var version = reader.ReadInt32();
+            if (version != Version)
+            {
+                throw new InvalidDataException("Bad version");
+            }
             var context = new PlatformContext();
             context.BlockStore = BinBlockStoreSerializer.Load(reader);
             context.Map = BinTileMapSerializer.Load(reader);
@@ -587,6 +675,13 @@ namespace Platform
             }
             context.LightsEnabled = reader.ReadBoolean();
             context.Time = TimeSpan.FromSeconds(reader.ReadDouble());
+            var numSpawns = reader.ReadInt32();
+            while (numSpawns > 0)
+            {
+                var spawn = BinSpawnSerializer.Load(reader);
+                context.Spawn.Add(spawn);
+                numSpawns--;
+            }
             return context;
         }
     }

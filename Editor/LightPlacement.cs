@@ -17,6 +17,11 @@ namespace Platform.Editor
         {
         }
 
+        public override string Name
+        {
+            get { return "Lights"; }
+        }
+
         protected override void StampImpl(PlatformContext context, Vector2 world)
         {
             var light = this.Current.Clone();
@@ -53,7 +58,7 @@ namespace Platform.Editor
             {
                 var tilePos = context.WorldToTile(world);
                 var tileTopLeft = context.TileToWorld(tilePos);
-                renderer.World.DrawCircle(world, 16f, 16, Color.White);
+                Light.DrawDebug(renderer, world, this.Current.Colour);
                 renderer.World.DrawRectangle(tileTopLeft, new Size2(context.BlockStore.TileSize, context.BlockStore.TileSize), new Color(1f, 1f, 1f, 0.5f));
 
                 var tileText = new StringBuilder();
